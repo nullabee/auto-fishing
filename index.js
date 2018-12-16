@@ -1,4 +1,3 @@
-BigInt.prototype.toJSON = function() { return this.toString(); };
 const path = require('path');
 const fs = require('fs');
 module.exports = function autoFishing(mod) {
