@@ -9,5 +9,7 @@ Commands:<br>
 /8 fish setbait link | to set bait <br>
 /8 fish save | to save settings <br>
 /8 fish setdelay value | set delay for ending minigame <br>
+/8 fish filetmode drop value | Set value to drop 500-10000 fish files after filling inventory <br>
+/8 fish filetmode | Disable this <br>
 You can manually edit config file, because im lazy<br>
 Repo contains opcodes only for RU. Use [Find packet id](https://github.com/Owyn/alex-packet-id-finder) and loggers<br>

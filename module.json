@@ -1,8 +1,10 @@
 {
-	"disableAutoUpdate": false,
-	"options": {
-		"niceName": "auto-fishing"
-	},
+    "disableAutoUpdate": false,
+    "options": {
+        "niceName": "auto-fishing"
+    },
     "supportUrl": "https://github.com/SoliaRdi/auto-fishing",
-	"servers": ["https://raw.githubusercontent.com/SoliaRdi/auto-fishing/master/"]
+    "servers": ["https://raw.githubusercontent.com/SoliaRdi/auto-fishing/master/"],
+    "name": "auto-fishing",
+    "description": "Description goes here."
 }
