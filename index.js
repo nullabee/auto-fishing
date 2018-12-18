@@ -65,6 +65,15 @@ module.exports = function autoFishing(mod) {
 		if ([0, 1, 5, 6].indexOf(event.type) > -1)
 			playerLocation = event;
 	});
+	mod.hook('C_USE_ITEM', 3, event => {
+		if (enabled&&playerLocation==undefined){
+			playerLocation = {
+				loc:event.loc,
+				w:event.w
+			};
+		}
+			
+	});
 	//decompose part
 	mod.hook('S_REQUEST_CONTRACT', 1, event => {
 		if (enabled && mod.game.me.is(event.senderId)) {
@@ -224,6 +233,11 @@ module.exports = function autoFishing(mod) {
 				noItems = true;
 				needToDecompose = true;
 				requestDecomposition();
+			}
+			if (mod.parseSystemMessage(event.message).id == 'SMT_CANNOT_FISHING_NON_AREA') {
+				setTimeout(() => {
+					useRod();
+				}, 10000);
 			}
 		}
 	});
