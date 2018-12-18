@@ -8,6 +8,7 @@ module.exports = function autoFishing(mod) {
 		needToCraft = false,
 		needToDecompose = false,
 		needToDropFilets = false,
+		noItems = false,
 		invitems = [],
 		decomposeitemscount = 0,
 		lastRecipe = null;
@@ -61,7 +62,7 @@ module.exports = function autoFishing(mod) {
 		}
 	})
 	mod.hook('C_PLAYER_LOCATION', 5, event => {
-		if([0,1,5,6].indexOf(event.type) > -1)
+		if ([0, 1, 5, 6].indexOf(event.type) > -1)
 			playerLocation = event;
 	});
 	//decompose part
@@ -113,22 +114,22 @@ module.exports = function autoFishing(mod) {
 				}
 			});
 		}
-		if (enabled && needToDropFilets&&config.filetmode=='drop'&&config.dropAmount>0 && event.items.length > 0) {
+		if (enabled && needToDropFilets && config.filetmode == 'drop' && config.dropAmount > 0 && event.items.length > 0) {
 			event.items.forEach(function (obj) {
 				if (obj.id == 204052) {
-					needToDropFilets=false;
-					let amount=config.dropAmount>obj.amount?obj.amount:config.dropAmount;
-					amount=obj.amount-amount<150:amount-150:amount;
+					needToDropFilets = false;
+					let amount = config.dropAmount > obj.amount ? obj.amount : config.dropAmount;
+					amount = obj.amount - amount < 150? amount - 150: amount;
 					mod.send('C_DEL_ITEM', 2, {
 						gameId: mod.game.me.gameId,
-						slot: obj.slot-40,
+						slot: obj.slot - 40,
 						amount: amount
 					});
 					setTimeout(() => {
 						useRod();
 					}, 5000);
 				}
-				
+
 			});
 		}
 	});
@@ -184,11 +185,14 @@ module.exports = function autoFishing(mod) {
 	}
 
 	function endDecompose() {
-		if (ContractId != null)
+		if (ContractId != null) {
+			noItems = false;
 			mod.send('C_CANCEL_CONTRACT', 1, {
 				type: 89,
 				id: ContractId
 			});
+		}
+
 	}
 
 	function getInventory() {
@@ -216,6 +220,9 @@ module.exports = function autoFishing(mod) {
 					getInventory();
 				}
 			}
+			if (mod.parseSystemMessage(event.message).id == 'SMT_NO_ITEM') {
+				noItems = true;
+			}
 		}
 	});
 	//craft part
@@ -230,13 +237,18 @@ module.exports = function autoFishing(mod) {
 				startCraft();
 			}, 500);
 		} else {
-			needToCraft = false;
-			setTimeout(() => {
-				useBait();
-			}, 500);
-			setTimeout(() => {
-				useRod();
-			}, 5000);
+			if (noItems) {
+				needToDecompose = true;
+				requestDecomposition();
+			} else {
+				needToCraft = false;
+				setTimeout(() => {
+					useBait();
+				}, 500);
+				setTimeout(() => {
+					useRod();
+				}, 5000);
+			}
 		}
 	});
 
