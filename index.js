@@ -61,7 +61,8 @@ module.exports = function autoFishing(mod) {
 		}
 	})
 	mod.hook('C_PLAYER_LOCATION', 5, event => {
-		playerLocation = event;
+		if([0,1,5,6].indexOf(event.type) > -1)
+			playerLocation = event;
 	});
 	//decompose part
 	mod.hook('S_REQUEST_CONTRACT', 1, event => {
@@ -116,10 +117,12 @@ module.exports = function autoFishing(mod) {
 			event.items.forEach(function (obj) {
 				if (obj.id == 204052) {
 					needToDropFilets=false;
+					let amount=config.dropAmount>obj.amount?obj.amount:config.dropAmount;
+					amount=obj.amount-amount<150:amount-150:amount;
 					mod.send('C_DEL_ITEM', 2, {
 						gameId: mod.game.me.gameId,
 						slot: obj.slot-40,
-						amount: config.dropAmount>obj.amount?obj.amount:config.dropAmount
+						amount: amount
 					});
 					setTimeout(() => {
 						useRod();
