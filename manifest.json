@@ -1,6 +1,6 @@
 {
     "files": {
-        "index.js": "f7d6621f28bd409e402c988185d91025266546f4856b467ab71d8330510bd81f",
+        "index.js": "0c5459556948ffcdc5e9ab075b97da383926378700eb85a42c2e6c723d9d591d",
         "module.json": "c12709972bc6bf77c8b652dfe551bd0e48939dc57d097b4fef8a05b8797cee92"
     },
     "defs": {
@@ -25,7 +25,6 @@
         "S_RP_ADD_ITEM_TO_DECOMPOSITION_CONTRACT": 1,
         "S_RP_COMMIT_DECOMPOSITION_CONTRACT": "raw",
         "S_START_FISHING_MINIGAME": 1,
-        "S_SYSTEM_MESSAGE": 1,
-        "S_SYSTEM_MESSAGE_LOOT_ITEM": 1
+        "S_SYSTEM_MESSAGE": 1
     }
 }

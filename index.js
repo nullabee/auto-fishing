@@ -142,19 +142,6 @@ module.exports = function autoFishing(mod) {
 			});
 		}
 	});
-	mod.hook('S_SYSTEM_MESSAGE_LOOT_ITEM', 1, event => {
-		if (enabled && config.items !== undefined) {
-			if (config.items.includes(event.item)) {
-				let index = invitems.findIndex(x => x.dbid == event.unk2);
-				if (index == -1) {
-					invitems.push({
-						id: event.item,
-						dbid: BigInt(event.unk2)
-					});
-				}
-			}
-		}
-	});
 	mod.hook('S_RP_COMMIT_DECOMPOSITION_CONTRACT', 'raw', _ => {
 		if (enabled && needToDecompose) {
 			endDecompose();
