@@ -222,6 +222,8 @@ module.exports = function autoFishing(mod) {
 			}
 			if (mod.parseSystemMessage(event.message).id == 'SMT_NO_ITEM') {
 				noItems = true;
+				needToDecompose = true;
+				requestDecomposition();
 			}
 		}
 	});
@@ -237,10 +239,7 @@ module.exports = function autoFishing(mod) {
 				startCraft();
 			}, 500);
 		} else {
-			if (noItems) {
-				needToDecompose = true;
-				requestDecomposition();
-			} else {
+			if (!noItems) {
 				needToCraft = false;
 				setTimeout(() => {
 					useBait();
