@@ -12,4 +12,4 @@ Commands:<br>
 /8 fish filetmode drop value | Set value to drop 500-10000 fish files after filling inventory <br>
 /8 fish filetmode | Disable this <br>
 You can manually edit config file, because im lazy<br>
-Repo contains opcodes only for RU. Use [Find packet id](https://github.com/Owyn/alex-packet-id-finder) and loggers<br>
+Repo contains opcodes only for RU. Use [Find packet id](https://github.com/Owyn/alex-packet-id-finder) / [loggers](https://github.com/SoliaRdi/PacketsLogger)<br>
