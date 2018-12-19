@@ -11,7 +11,7 @@ module.exports = function autoFishing(mod) {
 		noItems = false,
 		invitems = [],
 		decomposeitemscount = 0,
-		lastRecipe = null;
+		lastRecipe = null,currentFish;
 
 	let config;
 	try {
@@ -34,7 +34,7 @@ module.exports = function autoFishing(mod) {
 			rodId = event.rodId;
 			setTimeout(() => {
 				mod.send('C_START_FISHING_MINIGAME', 1, {});
-			}, 1000);
+			}, rng(1000,2000));
 		}
 	})
 	mod.hook('S_START_FISHING_MINIGAME', 1, event => {
@@ -43,14 +43,14 @@ module.exports = function autoFishing(mod) {
 				mod.send('C_END_FISHING_MINIGAME', 1, {
 					success: true
 				});
-			}, config.delay + event.level * 50);
+			},rng(config.delay,config.delay+1000)+ event.level * 50);
 		}
 	})
 	mod.hook('S_FISHING_CATCH', 1, event => {
 		if (enabled && mod.game.me.is(event.gameId)) {
 			setTimeout(() => {
 				useRod();
-			}, 5000);
+			}, rng(5000,6000));
 		}
 	})
 	mod.hook('S_FISHING_CATCH_FAIL', 1, event => {
@@ -58,7 +58,7 @@ module.exports = function autoFishing(mod) {
 			console.log('S_FISHING_CATCH_FAIL');
 			setTimeout(() => {
 				useRod();
-			}, 5000);
+			}, rng(5000,6000));
 		}
 	})
 	mod.hook('C_PLAYER_LOCATION', 5, event => {
@@ -91,23 +91,18 @@ module.exports = function autoFishing(mod) {
 		}
 	});
 	mod.hook('S_RP_ADD_ITEM_TO_DECOMPOSITION_CONTRACT', 1, event => {
-		if (enabled && needToDecompose && event.success) {
+		if (enabled && needToDecompose) {
 			decomposeitemscount++;
 			if (invitems.length > 0 && decomposeitemscount < 20) {
 				setTimeout(() => {
 					processDecompositionItem();
-				}, 150);
+				}, 200);
 			} else {
 				setTimeout(() => {
 					if (decomposeitemscount > 0)
 						decompose();
 				}, 300);
 			}
-		} else {
-			setTimeout(() => {
-				if (decomposeitemscount > 0)
-					decompose();
-			}, 300);
 		}
 	});
 	mod.hook('S_INVEN', 16, {
@@ -136,7 +131,7 @@ module.exports = function autoFishing(mod) {
 					});
 					setTimeout(() => {
 						useRod();
-					}, 5000);
+					}, rng(5000,6000));
 				}
 
 			});
@@ -148,7 +143,7 @@ module.exports = function autoFishing(mod) {
 			needToDecompose = false;
 			setTimeout(() => {
 				useRod();
-			}, 5000);
+			}, rng(5000,6000));
 		}
 	});
 
@@ -169,12 +164,15 @@ module.exports = function autoFishing(mod) {
 	}
 
 	function processDecompositionItem() {
-		let current = invitems.shift();
-		if (current != undefined && ContractId != null && enabled) {
+		let newitem=invitems.shift();
+		if(currentFish!=undefined&&newitem!=undefined&&newitem.dbid==currentFish.dbid)
+			return processDecompositionItem();
+		currentFish = newitem;
+		if (currentFish != undefined && ContractId != null && enabled) {
 			mod.send('C_RQ_ADD_ITEM_TO_DECOMPOSITION_CONTRACT', 1, {
 				contract: ContractId,
-				dbid: current.dbid,
-				itemid: current.id,
+				dbid: currentFish.dbid,
+				itemid: currentFish.id,
 				amount: 1
 			});
 		}
@@ -195,6 +193,9 @@ module.exports = function autoFishing(mod) {
 		mod.send('C_SHOW_INVEN', 1, {
 			unk: 1
 		});
+	}
+	function rng(min, max) {
+		return min + Math.floor(Math.random() * (max - min + 1));
 	}
 	//end decompose part
 	mod.hook('S_SYSTEM_MESSAGE', 1, event => {
@@ -247,7 +248,7 @@ module.exports = function autoFishing(mod) {
 				}, 500);
 				setTimeout(() => {
 					useRod();
-				}, 5000);
+				}, rng(5000,6000));
 			}
 		}
 	});
