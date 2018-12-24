@@ -2,7 +2,7 @@
 Tera proxy mod for fishing.<br>
 #### Installation&updates
 Move defs to node_modules\tera-data\protocol.<br>
-Move protocol files to node_modules\tera-data\map in Caali proxy.<br>
+Move protocol files to node_modules\tera-data\map in Caali proxy. Merge needed map in Pinkie proxy<br>
 #### Commands
 | Command  | Description | Hint
 | ------------- | ------------- | ------------- |
