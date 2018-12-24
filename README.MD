@@ -1,15 +1,23 @@
+#### About
 Tera proxy mod for fishing.<br>
+#### Installation&updates
 Move defs to node_modules\tera-data\protocol.<br>
 Move protocol files to node_modules\tera-data\map in Caali proxy.<br>
-Commands:<br>
-/8 fish | for enable  mod<br>
-/8 fish add link | to add item for auto decompose (link from inventory)<br>
-/8 fish remove link | to remove item for auto decompose<br>
-/8 fish setrecipe | to set last used recipe for crafting<br>
-/8 fish setbait link | to set bait <br>
-/8 fish save | to save settings <br>
-/8 fish setdelay value | set delay for ending minigame <br>
-/8 fish filetmode drop value | Set value to drop 500-10000 fish files after filling inventory <br>
-/8 fish filetmode | Disable this <br>
-You can manually edit config file, because im lazy<br>
-Repo contains opcodes only for RU. Use [Find packet id](https://github.com/Owyn/alex-packet-id-finder) / [loggers](https://github.com/SoliaRdi/PacketsLogger)<br>
+#### Commands
+| Command  | Description | Hint
+| ------------- | ------------- | ------------- |
+| fish blacklist add link | add item to blacklist for auto decompose  | link from inventory |
+| fish blacklist remove link | remove item for auto decompose  |  link from inventory |
+| fish setrecipe | to set last used recipe for crafting  |   |
+| fish setbait link | to set bait |  link from inventory  |
+| fish save | to save settings  |   |
+| fish setdelay value | set delay for ending minigame  |   |
+| fish filetmode drop value | Set value to drop fish files after filling inventory  | value range is 500-10000   |
+| fish filetmode | disable any interactions with fillets  |   |
+| fish filetmode bank value | Set value to bank fish files after filling inventory | value range is 500-10000. You need banker scroll in vip panel or inventory |
+
+
+
+
+You can manually edit config file<br>
+Repo will contains opcodes only for RU, unless someone send me them for other regions. Use [Find packet id](https://github.com/Owyn/alex-packet-id-finder) / [loggers](https://github.com/SoliaRdi/PacketsLogger)<br>

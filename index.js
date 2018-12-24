@@ -1,5 +1,20 @@
 const path = require('path');
 const fs = require('fs');
+const ITEMS_FISHES = [
+	206400, 206401, //tier 0
+	206402, 206403, //tier 1
+	206404, 206405, //tier 2
+	206406, 206407, //tier 3
+	206408, 206409, 206410, //tier 4
+	206411, 206412, 206413, //tier 5
+	206414, 206415, 206416, 206417, //tier 6
+	206418, 206419, 206420, 206421, //tier 7
+	206422, 206423, 206424, 206425, //tier 8
+	206426, 206427, 206428, 206429, 206430, //tier 9
+	206431, 206432, 206433, 206434, 206435, //tier 10
+	206500, 206501, 206502, 206503, 206504, 206505 //baf
+];
+const ITEMS_BANKER = [60264, 160326, 170003, 216754];
 module.exports = function autoFishing(mod) {
 	let rodId = null,
 		enabled = false,
@@ -8,33 +23,48 @@ module.exports = function autoFishing(mod) {
 		needToCraft = false,
 		needToDecompose = false,
 		needToDropFilets = false,
+		needToBankFilets = false,
 		noItems = false,
 		invitems = [],
 		decomposeitemscount = 0,
-		lastRecipe = null,currentFish;
+		lastRecipe = null,
+		currentFish,
+		pcbangBanker = null,
+		invBanker = null,
+		bankerInCooldown = false,
+		currentBanker = null,
+		bankerUsed = false,
+		findedFillets = null,
+		testOpcode='C_PUT_WARE_ITEM';
 
 	let config;
 	try {
 		config = require('./config.json');
 		if (!config.delay > 0) {
-			config.delay = 2000;
+			config.delay = 3000;
 		}
-		if (config.items === undefined || config.items == null)
-			config.items = [];
+		if (config.blacklist === undefined || config.blacklist == null)
+			config.blacklist = [];
 	} catch (error) {
 		config = {};
-		config.delay = 2000;
-		config.items = [];
+		config.delay = 3000;
+		config.blacklist = [];
 	}
 
 
 	mod.game.initialize(['me']);
+	mod.game.on('enter_game', () => {
+		let opcode=mod.dispatch.protocolMap.code.get(testOpcode)
+		if(opcode===undefined||opcode==null)
+			mod.command.message('C_PUT_WARE_ITEM not mapped, banker functions for auto-fishing will be disabled!');
+	});
+	
 	mod.hook('S_FISHING_BITE', 1, event => {
 		if (enabled && mod.game.me.is(event.gameId)) {
 			rodId = event.rodId;
 			setTimeout(() => {
 				mod.send('C_START_FISHING_MINIGAME', 1, {});
-			}, rng(1000,2000));
+			}, rng(1000, 2000));
 		}
 	})
 	mod.hook('S_START_FISHING_MINIGAME', 1, event => {
@@ -43,14 +73,14 @@ module.exports = function autoFishing(mod) {
 				mod.send('C_END_FISHING_MINIGAME', 1, {
 					success: true
 				});
-			},rng(config.delay,config.delay+1000)+ event.level * 50);
+			}, rng(config.delay, config.delay + 1000) + event.level * 50);
 		}
 	})
 	mod.hook('S_FISHING_CATCH', 1, event => {
 		if (enabled && mod.game.me.is(event.gameId)) {
 			setTimeout(() => {
 				useRod();
-			}, rng(5000,6000));
+			}, rng(5000, 6000));
 		}
 	})
 	mod.hook('S_FISHING_CATCH_FAIL', 1, event => {
@@ -58,7 +88,7 @@ module.exports = function autoFishing(mod) {
 			console.log('S_FISHING_CATCH_FAIL');
 			setTimeout(() => {
 				useRod();
-			}, rng(5000,6000));
+			}, rng(5000, 6000));
 		}
 	})
 	mod.hook('C_PLAYER_LOCATION', 5, event => {
@@ -66,13 +96,13 @@ module.exports = function autoFishing(mod) {
 			playerLocation = event;
 	});
 	mod.hook('C_USE_ITEM', 3, event => {
-		if (enabled&&playerLocation==undefined){
+		if (enabled && playerLocation == undefined) {
 			playerLocation = {
-				loc:event.loc,
-				w:event.w
+				loc: event.loc,
+				w: event.w
 			};
 		}
-			
+
 	});
 	//decompose part
 	mod.hook('S_REQUEST_CONTRACT', 1, event => {
@@ -81,13 +111,23 @@ module.exports = function autoFishing(mod) {
 				ContractId = event.id;
 				processDecompositionItem();
 			}
-
+			if (event.type == 26 && needToBankFilets) {
+				currentBanker.contractId = event.id;
+				processBankingFillets();
+			}
 		}
 	});
 	mod.hook('S_CANCEL_CONTRACT', 1, event => {
 		if (enabled && mod.game.me.is(event.senderId)) {
 			if (event.type == 89 && ContractId == event.id)
 				ContractId = null;
+			if (event.type == 26 && currentBanker.contractId == event.id) {
+				currentBanker = null;
+				needToBankFilets = false;
+				setTimeout(() => {
+					useRod();
+				}, rng(5000, 6000));
+			}
 		}
 	});
 	mod.hook('S_RP_ADD_ITEM_TO_DECOMPOSITION_CONTRACT', 1, event => {
@@ -108,33 +148,50 @@ module.exports = function autoFishing(mod) {
 	mod.hook('S_INVEN', 16, {
 		order: -1000
 	}, event => {
-		if (enabled && config.items !== undefined && event.items.length > 0) {
+		if (!enabled || event.items.length == 0) return;
+		event.items.forEach(function (obj) {
+			if (ITEMS_FISHES.includes(obj.id) && !config.blacklist.includes(obj.id)) {
+				let index = invitems.findIndex(x => x.dbid == obj.dbid);
+				if (index == -1 && obj.dbid != 0) {
+					invitems.push(obj);
+				}
+			}
+		});
+		if (needToBankFilets || needToDropFilets) {
 			event.items.forEach(function (obj) {
-				if (config.items.includes(obj.id)) {
-					let index = invitems.findIndex(x => x.dbid == obj.dbid);
-					if (index == -1 && obj.dbid != 0) {
-						invitems.push(obj);
-					}
+				if (obj.id == 204052) {
+					findedFillets = obj;
 				}
 			});
 		}
-		if (enabled && needToDropFilets && config.filetmode == 'drop' && config.dropAmount > 0 && event.items.length > 0) {
-			event.items.forEach(function (obj) {
-				if (obj.id == 204052) {
-					needToDropFilets = false;
-					let amount = config.dropAmount > obj.amount ? obj.amount : config.dropAmount;
-					amount = obj.amount - amount < 150? amount - 150: amount;
-					mod.send('C_DEL_ITEM', 2, {
-						gameId: mod.game.me.gameId,
-						slot: obj.slot - 40,
-						amount: amount
-					});
-					setTimeout(() => {
-						useRod();
-					}, rng(5000,6000));
-				}
-
+		if (findedFillets != null && needToDropFilets && config.filetmode == 'drop' && config.dropAmount > 150) {
+			needToDropFilets = false;
+			let amount = config.dropAmount > findedFillets.amount ? findedFillets.amount : config.dropAmount;
+			amount = findedFillets.amount - amount < 150 ? amount - 150 : amount;
+			mod.send('C_DEL_ITEM', 2, {
+				gameId: mod.game.me.gameId,
+				slot: findedFillets.slot - 40,
+				amount: amount
 			});
+			setTimeout(() => {
+				useRod();
+			}, rng(5000, 6000));
+		}
+		if (findedFillets != null && needToBankFilets && !bankerUsed && config.filetmode == 'bank' && config.bankAmount > 150) {
+			if (pcbangBanker == null) {
+				event.items.forEach(function (obj) {
+					if (ITEMS_BANKER.includes(obj.id)) {
+						invBanker = {
+							id: obj.id
+						};
+						bankerUsed = true;
+						useBanker();
+					}
+				});
+			} else {
+				bankerUsed = true;
+				useBanker();
+			}
 		}
 	});
 	mod.hook('S_RP_COMMIT_DECOMPOSITION_CONTRACT', 'raw', _ => {
@@ -143,7 +200,7 @@ module.exports = function autoFishing(mod) {
 			needToDecompose = false;
 			setTimeout(() => {
 				useRod();
-			}, rng(5000,6000));
+			}, rng(5000, 6000));
 		}
 	});
 
@@ -164,8 +221,8 @@ module.exports = function autoFishing(mod) {
 	}
 
 	function processDecompositionItem() {
-		let newitem=invitems.shift();
-		if(currentFish!=undefined&&newitem!=undefined&&newitem.dbid==currentFish.dbid)
+		let newitem = invitems.shift();
+		if (currentFish != undefined && newitem != undefined && newitem.dbid == currentFish.dbid)
 			return processDecompositionItem();
 		currentFish = newitem;
 		if (currentFish != undefined && ContractId != null && enabled) {
@@ -194,6 +251,7 @@ module.exports = function autoFishing(mod) {
 			unk: 1
 		});
 	}
+
 	function rng(min, max) {
 		return min + Math.floor(Math.random() * (max - min + 1));
 	}
@@ -212,9 +270,24 @@ module.exports = function autoFishing(mod) {
 				if (event.message.indexOf('@item:204052') != -1) {
 					needToDecompose = false;
 					endDecompose();
-					console.log('too many fillet');
-					needToDropFilets = true;
-					getInventory();
+					switch (config.filetmode) {
+						case 'drop':
+							needToDropFilets = true;
+							setTimeout(() => {
+								getInventory();
+							}, 2000); 
+							break;
+						case 'bank':
+							needToBankFilets = true;
+							setTimeout(() => {
+								getInventory();
+							}, 2000); 
+							break;
+						default:
+							console.log('Mod will be disabled');
+							break;
+					}
+
 				}
 			}
 			if (mod.parseSystemMessage(event.message).id == 'SMT_NO_ITEM') {
@@ -248,7 +321,7 @@ module.exports = function autoFishing(mod) {
 				}, 500);
 				setTimeout(() => {
 					useRod();
-				}, rng(5000,6000));
+				}, rng(5000, 6000));
 			}
 		}
 	});
@@ -261,6 +334,108 @@ module.exports = function autoFishing(mod) {
 			});
 	}
 	//end craft part
+	//bank part
+	mod.hook('S_PCBANGINVENTORY_DATALIST', 1, event => {
+		for (let item of event.inventory) {
+			if (ITEMS_BANKER.includes(item.item)) {
+				pcbangBanker = {
+					slot: item.slot
+				};
+			}
+		}
+	});
+	mod.hook('S_START_COOLTIME_ITEM', 1, event => {
+		if (ITEMS_BANKER.includes(event.item) && event.cooldown > 0) {
+			bankerInCooldown = true;
+			setTimeout(() => {
+				bankerInCooldown = false;
+			}, event.cooldown * 1000);
+		};
+	});
+	mod.hook('S_SPAWN_NPC', 10, event => {
+		if (enabled && needToBankFilets && currentBanker == null) {
+			if (event.relation == 12 && event.templateId == 1962 && mod.game.me.is(event.owner)) {
+				currentBanker = event;
+				setTimeout(() => {
+					mod.send('C_NPC_CONTACT', 2, {
+						gameId: currentBanker.gameId
+					})
+				}, 3000);
+			}
+		}
+	});
+	mod.hook('S_DIALOG', 2, event => {
+		if (enabled && needToBankFilets) {
+			if (event.gameId == currentBanker.gameId && event.questId == 1962) {
+				currentBanker.dialogId = event.id;
+				setTimeout(() => {
+					mod.send('C_DIALOG', 1, {
+						id: currentBanker.dialogId,
+						index: 1,
+						questReward: -1,
+						unk: -1
+					})
+				}, 3000);
+			}
+		}
+	});
+
+	function useBanker() {
+		if (bankerInCooldown) {
+			console.log("Banker in cooldown retry in 1 min");
+			setTimeout(() => {
+				useBanker();
+			}, 60 * 1000);
+			return;
+		}
+		if (pcbangBanker != null) {
+			mod.send('C_PCBANGINVENTORY_USE_SLOT', 1, pcbangBanker);
+		} else
+		 if (invBanker != null) {
+			mod.send('C_USE_ITEM', 3, {
+				gameId: mod.game.me.gameId,
+				id: invBanker.id,
+				dbid: invBanker.dbid,
+				target: 0,
+				amount: 1,
+				dest: 0,
+				loc: playerLocation.loc,
+				w: playerLocation.w,
+				unk1: 0,
+				unk2: 0,
+				unk3: 0,
+				unk4: true
+			});
+		} else {
+			console.log("No banker found, disabling mod");
+			enabled = false;
+		}
+	}
+
+	function processBankingFillets() {
+		if (findedFillets != null) {
+			let amount = config.bankAmount > findedFillets.amount ? findedFillets.amount : config.bankAmount;
+			amount = findedFillets.amount - amount < 150 ? amount - 150 : amount;
+			mod.send(testOpcode, 2, {
+				gameId: mod.game.me.gameId,
+				type: 1,
+				page: 0,
+				money: 0n,
+				invenPos: 81,
+				dbid: findedFillets.id,
+				uid: findedFillets.dbid,
+				amont: amount,
+				bankPos: 0
+			});
+			setTimeout(() => {
+				mod.send('C_CANCEL_CONTRACT', 1, {
+					type: 26,
+					id: currentBanker.contractId
+				});
+			}, 5000);
+		}
+	}
+	//end bank part
 	function useRod() {
 		if (enabled && playerLocation != undefined && rodId != null)
 			mod.toServer('C_USE_ITEM', 3, {
@@ -309,35 +484,44 @@ module.exports = function autoFishing(mod) {
 	}
 	mod.command.add('fish', (key, arg, arg2) => {
 		switch (key) {
-			case 'add':
-				var tmp = getItemIdChatLink(arg);
-				if (tmp != null) {
-					if (config.items.indexOf(tmp) == -1) {
-						mod.command.message(`Pushed item id: ${tmp}`);
-						config.items.push(tmp);
-					} else {
-						mod.command.message(`Already exist`);
-					}
+			case 'blacklist':
+				switch (arg) {
+					case 'add':
+						var tmp = getItemIdChatLink(arg2);
+						if (tmp != null) {
+							if (config.blacklist.indexOf(tmp) == -1) {
+								mod.command.message(`Pushed item id to blacklist: ${tmp}`);
+								config.blacklist.push(tmp);
+							} else {
+								mod.command.message(`Already exist`);
+							}
 
-				} else {
-					mod.command.message(`Incorrect item id`);
-				}
+						} else {
+							mod.command.message(`Incorrect item id`);
+						}
 
-				break;
-			case 'remove':
-				var tmp = getItemIdChatLink(arg);
-				if (tmp != null) {
-					var index = config.items.indexOf(tmp);
-					if (index == -1) {
-						mod.command.message(`not exist`);
-					} else {
-						mod.command.message(`Remove item id: ${tmp}`);
-						config.items.splice(index, 1);
-					}
-				} else {
-					mod.command.message(`Incorrect item id`);
+						break;
+					case 'remove':
+						var tmp = getItemIdChatLink(arg2);
+						if (tmp != null) {
+							var index = config.blacklist.indexOf(tmp);
+							if (index == -1) {
+								mod.command.message(`not exist`);
+							} else {
+								mod.command.message(`Remove item id from blacklist: ${tmp}`);
+								config.blacklist.splice(index, 1);
+							}
+						} else {
+							mod.command.message(`Incorrect item id`);
+						}
+						break;
+					case 'reset':
+						config.blacklist = [];
+						mod.command.message(`Blacklist reset`);
+						break;
 				}
 				break;
+
 			case 'setbait':
 				var tmp = getItemIdChatLink(arg);
 				if (tmp != null) {
@@ -350,15 +534,26 @@ module.exports = function autoFishing(mod) {
 			case 'filetmode':
 				switch (arg) {
 					case 'drop':
-						let amount = parseInt(arg2);
+						var amount = parseInt(arg2);
 						if (amount > 500 && amount < 10000) {
 							config.dropAmount = amount;
 							mod.command.message(`Set to drop ${amount} files after filling inventory`);
 						} else {
 							config.dropAmount = 2000;
-							mod.command.message(`Incorrect value,set to drop ${amount} files after filling inventory`);
+							mod.command.message(`Incorrect value,set to drop ${config.dropAmount} files after filling inventory`);
 						}
 						config.filetmode = 'drop';
+						break;
+					case 'bank':
+						var amount = parseInt(arg2);
+						if (amount > 500 && amount < 10000) {
+							config.bankAmount = amount;
+							mod.command.message(`Set to bank ${amount} files after filling inventory`);
+						} else {
+							config.bankAmount = 2000;
+							mod.command.message(`Incorrect value,set to bank ${config.bankAmount} files after filling inventory`);
+						}
+						config.filetmode = 'bank';
 						break;
 					default:
 						mod.command.message(`filetmode disabled`);
@@ -371,7 +566,7 @@ module.exports = function autoFishing(mod) {
 					mod.command.message(`Recipe id set to: ${lastRecipe}`);
 					config.recipe = lastRecipe;
 				} else {
-					mod.command.message(`Incorrect item id`);
+					mod.command.message(`Incorrect item id. Manually craft bait when mod enabled`);
 				}
 				break;
 			case 'setdelay':
@@ -384,14 +579,16 @@ module.exports = function autoFishing(mod) {
 				}
 				break;
 			case 'test':
-				requestDecomposition();
-				needToDecompose = true;
+				needToBankFilets = true;
+				getInventory();
 				break;
 			case 'save':
+				mod.command.message(`Configuration saved`);
 				saveConfig();
 				break;
 			default:
 				enabled = !enabled;
+				invitems = [];
 				if (enabled)
 					mod.command.message('autoFishing on. Manually start fishing');
 				else {
