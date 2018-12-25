@@ -422,7 +422,7 @@ module.exports = function autoFishing(mod) {
 				type: 1,
 				page: 0,
 				money: 0n,
-				invenPos: 81,
+				invenPos: findedFillets.slot,//actually ignored
 				dbid: findedFillets.id,
 				uid: findedFillets.dbid,
 				amont: amount,
