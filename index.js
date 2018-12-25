@@ -121,9 +121,10 @@ module.exports = function autoFishing(mod) {
 		if (enabled && mod.game.me.is(event.senderId)) {
 			if (event.type == 89 && ContractId == event.id)
 				ContractId = null;
-			if (event.type == 26 && currentBanker.contractId == event.id) {
+			if (event.type == 26 &&needToBankFilets&& currentBanker.contractId == event.id) {
 				currentBanker = null;
 				needToBankFilets = false;
+				bankerUsed=false;
 				setTimeout(() => {
 					useRod();
 				}, rng(5000, 6000));
@@ -345,7 +346,7 @@ module.exports = function autoFishing(mod) {
 		}
 	});
 	mod.hook('S_START_COOLTIME_ITEM', 1, event => {
-		if (ITEMS_BANKER.includes(event.item) && event.cooldown > 0) {
+		if (ITEMS_BANKER.includes(event.item) && event.cooldown > 0&&!bankerInCooldown) {
 			bankerInCooldown = true;
 			setTimeout(() => {
 				bankerInCooldown = false;
