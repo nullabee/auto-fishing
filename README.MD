@@ -8,6 +8,7 @@ Move protocol files to node_modules\tera-data\map in Caali proxy. Merge needed m
 | ------------- | ------------- | ------------- |
 | fish blacklist add link | add item to blacklist for auto decompose  | link from inventory |
 | fish blacklist remove link | remove item from blacklist for auto decompose  |  link from inventory |
+| fish blacklist reset | reset blacklist |   |
 | fish setrecipe | to set last used recipe for crafting  |   |
 | fish setbait link | to set bait |  link from inventory  |
 | fish save | to save settings  |   |
