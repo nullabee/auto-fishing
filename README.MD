@@ -6,10 +6,11 @@ Move protocol files to node_modules\tera-data\map in Caali proxy. Merge needed m
 #### Commands
 | Command  | Description | Hint
 | ------------- | ------------- | ------------- |
-| fish blacklist add link | add item to blacklist for auto decompose  | link from inventory |
+| fish | to enable mod  |  |
+| fish blacklist add link | add item to blacklist for auto decompose  | link from inventory. Blacklist means, that you don't want this fishes be dismantled |
 | fish blacklist remove link | remove item from blacklist for auto decompose  |  link from inventory |
 | fish blacklist reset | reset blacklist |   |
-| fish setrecipe | to set last used recipe for crafting  |   |
+| fish setrecipe | to set last used recipe for crafting  | enable mod before crafting  |
 | fish setbait link | to set bait |  link from inventory  |
 | fish save | to save settings  |   |
 | fish setdelay value | set delay for ending minigame  |   |
