@@ -34,8 +34,7 @@ module.exports = function autoFishing(mod) {
 		bankerInCooldown = false,
 		currentBanker = null,
 		bankerUsed = false,
-		findedFillets = null,
-		testOpcode='C_PUT_WARE_ITEM';
+		findedFillets = null;
 
 	let config;
 	try {
@@ -54,11 +53,11 @@ module.exports = function autoFishing(mod) {
 
 	mod.game.initialize(['me']);
 	mod.game.on('enter_game', () => {
-		let opcode=mod.dispatch.protocolMap.code.get(testOpcode)
-		if(opcode===undefined||opcode==null)
+		let opcode = mod.dispatch.protocolMap.code.get('C_PUT_WARE_ITEM')
+		if (opcode === undefined || opcode == null)
 			mod.command.message('C_PUT_WARE_ITEM not mapped, banker functions for auto-fishing will be disabled!');
 	});
-	
+
 	mod.hook('S_FISHING_BITE', 1, event => {
 		if (enabled && mod.game.me.is(event.gameId)) {
 			rodId = event.rodId;
@@ -121,10 +120,10 @@ module.exports = function autoFishing(mod) {
 		if (enabled && mod.game.me.is(event.senderId)) {
 			if (event.type == 89 && ContractId == event.id)
 				ContractId = null;
-			if (event.type == 26 &&needToBankFilets&& currentBanker.contractId == event.id) {
+			if (event.type == 26 && needToBankFilets && currentBanker.contractId == event.id) {
 				currentBanker = null;
 				needToBankFilets = false;
-				bankerUsed=false;
+				bankerUsed = false;
 				setTimeout(() => {
 					useRod();
 				}, rng(5000, 6000));
@@ -276,13 +275,13 @@ module.exports = function autoFishing(mod) {
 							needToDropFilets = true;
 							setTimeout(() => {
 								getInventory();
-							}, 2000); 
+							}, 2000);
 							break;
 						case 'bank':
 							needToBankFilets = true;
 							setTimeout(() => {
 								getInventory();
-							}, 2000); 
+							}, 2000);
 							break;
 						default:
 							console.log('Mod will be disabled');
@@ -305,26 +304,25 @@ module.exports = function autoFishing(mod) {
 	});
 	//craft part
 	mod.hook('C_START_PRODUCE', 1, event => {
-		if (enabled) {
 			lastRecipe = event.recipe;
-		}
 	});
 	mod.hook('S_END_PRODUCE', 1, event => {
-		if (enabled && needToCraft && event.success) {
-			setTimeout(() => {
-				startCraft();
-			}, 500);
-		} else {
-			if (!noItems) {
-				needToCraft = false;
+		if (enabled&&needToCraft)
+			if (event.success) {
 				setTimeout(() => {
-					useBait();
+					startCraft();
 				}, 500);
-				setTimeout(() => {
-					useRod();
-				}, rng(5000, 6000));
+			} else {
+				if (!noItems) {
+					needToCraft = false;
+					setTimeout(() => {
+						useBait();
+					}, 500);
+					setTimeout(() => {
+						useRod();
+					}, rng(5000, 6000));
+				}
 			}
-		}
 	});
 
 	function startCraft() {
@@ -346,7 +344,7 @@ module.exports = function autoFishing(mod) {
 		}
 	});
 	mod.hook('S_START_COOLTIME_ITEM', 1, event => {
-		if (ITEMS_BANKER.includes(event.item) && event.cooldown > 0&&!bankerInCooldown) {
+		if (ITEMS_BANKER.includes(event.item) && event.cooldown > 0 && !bankerInCooldown) {
 			bankerInCooldown = true;
 			setTimeout(() => {
 				bankerInCooldown = false;
@@ -392,7 +390,7 @@ module.exports = function autoFishing(mod) {
 		if (pcbangBanker != null) {
 			mod.send('C_PCBANGINVENTORY_USE_SLOT', 1, pcbangBanker);
 		} else
-		 if (invBanker != null) {
+		if (invBanker != null) {
 			mod.send('C_USE_ITEM', 3, {
 				gameId: mod.game.me.gameId,
 				id: invBanker.id,
@@ -417,12 +415,12 @@ module.exports = function autoFishing(mod) {
 		if (findedFillets != null) {
 			let amount = config.bankAmount > findedFillets.amount ? findedFillets.amount : config.bankAmount;
 			amount = findedFillets.amount - amount < 150 ? amount - 150 : amount;
-			mod.send(testOpcode, 2, {
+			mod.send('C_PUT_WARE_ITEM', 2, {
 				gameId: mod.game.me.gameId,
 				type: 1,
 				page: 0,
 				money: 0n,
-				invenPos: findedFillets.slot,//actually ignored
+				invenPos: findedFillets.slot, //actually ignored
 				dbid: findedFillets.id,
 				uid: findedFillets.dbid,
 				amont: amount,
