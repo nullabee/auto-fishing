@@ -60,6 +60,7 @@ module.exports = function autoFishing(mod) {
 
 	mod.hook('S_FISHING_BITE', 1, event => {
 		if (enabled && mod.game.me.is(event.gameId)) {
+			noItems=false;
 			rodId = event.rodId;
 			setTimeout(() => {
 				mod.send('C_START_FISHING_MINIGAME', 1, {});
