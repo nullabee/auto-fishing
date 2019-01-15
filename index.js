@@ -465,7 +465,8 @@ module.exports = function autoFishing(mod) {
 	//end bank part
 	function useRod() {
 		if (enabled && playerLocation != undefined && rodId != null){
-			if(config.autosalad&&fishsalad!=null&&abnormalityDuration(70261)==0&&fishsalad.amount>0)
+			if(config.autosalad&&fishsalad!=null&&abnormalityDuration(70261)==0&&fishsalad.amount>0){
+				fishsalad.amount-=1;
 				mod.toServer('C_USE_ITEM', 3, {
 					gameId: mod.game.me.gameId,
 					id: fishsalad.id,
@@ -480,6 +481,7 @@ module.exports = function autoFishing(mod) {
 					unk3: 0,
 					unk4: true
 				});
+			}
 			setTimeout(() => {
 				mod.toServer('C_USE_ITEM', 3, {
 					gameId: mod.game.me.gameId,
