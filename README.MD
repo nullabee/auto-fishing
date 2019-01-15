@@ -7,6 +7,7 @@ Move protocol files to node_modules\tera-data\map in Caali proxy. Merge needed m
 | Command  | Description | Hint
 | ------------- | ------------- | ------------- |
 | fish | to enable mod  |  |
+| fish autosalad | to enable auto using fish salad  |  |
 | fish blacklist add link | add item to blacklist for auto decompose  | link from inventory. Blacklist means, that you don't want this fishes be dismantled |
 | fish blacklist remove link | remove item from blacklist for auto decompose  |  link from inventory |
 | fish blacklist reset | reset blacklist |   |

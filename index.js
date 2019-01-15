@@ -34,7 +34,8 @@ module.exports = function autoFishing(mod) {
 		bankerInCooldown = false,
 		currentBanker = null,
 		bankerUsed = false,
-		findedFillets = null;
+		findedFillets = null,
+		fishsalad=null;
 
 	let config;
 	try {
@@ -60,7 +61,7 @@ module.exports = function autoFishing(mod) {
 
 	mod.hook('S_FISHING_BITE', 1, event => {
 		if (enabled && mod.game.me.is(event.gameId)) {
-			noItems=false;
+			noItems = false;
 			rodId = event.rodId;
 			setTimeout(() => {
 				mod.send('C_START_FISHING_MINIGAME', 1, {});
@@ -165,6 +166,12 @@ module.exports = function autoFishing(mod) {
 				}
 			});
 		}
+		if(config.autosalad)
+			event.items.forEach(function (obj) {
+				if ([206020,206040].includes(obj.id)) {
+					fishsalad = obj;
+				}
+			});
 		if (findedFillets != null && needToDropFilets && config.filetmode == 'drop' && config.dropAmount > 150) {
 			needToDropFilets = false;
 			let amount = config.dropAmount > findedFillets.amount ? findedFillets.amount : config.dropAmount;
@@ -305,10 +312,10 @@ module.exports = function autoFishing(mod) {
 	});
 	//craft part
 	mod.hook('C_START_PRODUCE', 1, event => {
-			lastRecipe = event.recipe;
+		lastRecipe = event.recipe;
 	});
 	mod.hook('S_END_PRODUCE', 1, event => {
-		if (enabled&&needToCraft)
+		if (enabled && needToCraft)
 			if (event.success) {
 				setTimeout(() => {
 					startCraft();
@@ -379,7 +386,27 @@ module.exports = function autoFishing(mod) {
 			}
 		}
 	});
+	// Abnormality tracking
+	let abnormalities = {};
+	mod.hook('S_ABNORMALITY_BEGIN', 3, event => {
+		if (mod.game.me.is(event.target))
+			abnormalities[event.id] = Date.now() + event.duration;
+	});
 
+	mod.hook('S_ABNORMALITY_REFRESH', 1, event => {
+		if (mod.game.me.is(event.target))
+			abnormalities[event.id] = Date.now() + event.duration;
+	});
+
+	mod.hook('S_ABNORMALITY_END', 1, event => {
+		if (mod.game.me.is(event.target))
+			delete abnormalities[event.id];
+	});
+	function abnormalityDuration(id) {
+        if (!abnormalities[id])
+            return 0;
+        return abnormalities[id] - Date.now();
+    }
 	function useBanker() {
 		if (bankerInCooldown) {
 			console.log("Banker in cooldown retry in 1 min");
@@ -437,21 +464,41 @@ module.exports = function autoFishing(mod) {
 	}
 	//end bank part
 	function useRod() {
-		if (enabled && playerLocation != undefined && rodId != null)
-			mod.toServer('C_USE_ITEM', 3, {
-				gameId: mod.game.me.gameId,
-				id: rodId,
-				dbid: 0,
-				target: 0,
-				amount: 1,
-				dest: 0,
-				loc: playerLocation.loc,
-				w: playerLocation.w,
-				unk1: 0,
-				unk2: 0,
-				unk3: 0,
-				unk4: true
-			});
+		if (enabled && playerLocation != undefined && rodId != null){
+			if(config.autosalad&&fishsalad!=null&&abnormalityDuration(70261)==0&&fishsalad.amount>0)
+				mod.toServer('C_USE_ITEM', 3, {
+					gameId: mod.game.me.gameId,
+					id: fishsalad.id,
+					dbid: 0,
+					target: 0,
+					amount: 1,
+					dest: 0,
+					loc: playerLocation.loc,
+					w: playerLocation.w,
+					unk1: 0,
+					unk2: 0,
+					unk3: 0,
+					unk4: true
+				});
+			setTimeout(() => {
+				mod.toServer('C_USE_ITEM', 3, {
+					gameId: mod.game.me.gameId,
+					id: rodId,
+					dbid: 0,
+					target: 0,
+					amount: 1,
+					dest: 0,
+					loc: playerLocation.loc,
+					w: playerLocation.w,
+					unk1: 0,
+					unk2: 0,
+					unk3: 0,
+					unk4: true
+				});
+			}, 500);
+		}
+
+
 	}
 
 	function useBait() {
@@ -582,6 +629,10 @@ module.exports = function autoFishing(mod) {
 				needToBankFilets = true;
 				getInventory();
 				break;
+			case 'autosalad':
+				config.autosalad = !config.autosalad;
+				mod.command.message('Auto use of Fish Salad ' + (config.autosalad ? 'en' : 'dis') + 'abled');
+			break;
 			case 'save':
 				mod.command.message(`Configuration saved`);
 				saveConfig();
