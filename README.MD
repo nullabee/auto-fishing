@@ -7,6 +7,7 @@ Move protocol files to node_modules\tera-data\map in Caali proxy. Merge needed m
 | Command  | Description | Hint
 | ------------- | ------------- | ------------- |
 | fish | to enable mod  |  |
+| fish sellfishes | Sell fishes when inv full | You need traveling merchant scroll in inventory and additional opcodes&defs |
 | fish autosalad | to enable auto using fish salad  |  |
 | fish blacklist add link | add item to blacklist for auto decompose  | link from inventory. Blacklist means, that you don't want this fishes be dismantled |
 | fish blacklist remove link | remove item from blacklist for auto decompose  |  link from inventory |
@@ -23,4 +24,4 @@ Move protocol files to node_modules\tera-data\map in Caali proxy. Merge needed m
 
 
 You can manually edit config file<br>
-Repo will contains opcodes only for RU, unless someone send me them for other regions. Use [Find packet id](https://github.com/Owyn/alex-packet-id-finder) / [loggers](https://github.com/SoliaRdi/PacketsLogger)<br>
+Repo will contains opcodes only for RU, unless someone send me them for other regions. Use [Find packet id](https://github.com/Owyn/alex-packet-id-finder) / [PacketsLogger](https://github.com/SoliaRdi/PacketsLogger)<br>
