@@ -43,15 +43,15 @@ module.exports = function autoFishing(mod) {
 		findedFillets = null,
 		fishsalad = null;
 		let extendedFunctions = {
-		banker:{
-			'C_PUT_WARE_ITEM': false,
-		},
-		seller:{
-			'C_STORE_SELL_ADD_BASKET': false,
-			'S_STORE_BASKET': false,
-			'C_STORE_COMMIT': false,
-		}
-	};
+			'banker':{
+				'C_PUT_WARE_ITEM': false,
+			},
+			'seller':{
+				'C_STORE_SELL_ADD_BASKET': false,
+				'S_STORE_BASKET': false,
+				'C_STORE_COMMIT': false,
+			}
+		};
 
 	let config;
 	try {
@@ -71,9 +71,9 @@ module.exports = function autoFishing(mod) {
 	mod.game.initialize(['me']);
 	mod.game.on('enter_game', () => {
 		for (var type in extendedFunctions) {
-			for(var opcode in type){
-				var test = mod.dispatch.protocolMap.code.get(type[opcode]);
-				if (test !== undefined && test != null) type[opcode] = true;
+			for(var opcode in extendedFunctions[type]){
+				var test = mod.dispatch.protocolMap.name.get(opcode);
+				if (test !== undefined && test != null) extendedFunctions[type][opcode] = true;
 			}
 		}
 		if (config.filetmode == 'bank' &&Object.values(extendedFunctions.banker).some(x=>!x)) {
