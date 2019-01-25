@@ -31,7 +31,6 @@ module.exports = function autoFishing(mod) {
 		decomposeitemscount = 0,
 		sellItemsCount = 0,
 		lastRecipe = null,
-		currentFish,
 		pcbangBanker = null,
 		invBanker = null,
 		scrollsInCooldown = false,
@@ -41,17 +40,18 @@ module.exports = function autoFishing(mod) {
 		bankerUsed = false,
 		sellerUsed = false,
 		findedFillets = null,
-		fishsalad = null;
-		let extendedFunctions = {
-			'banker':{
-				'C_PUT_WARE_ITEM': false,
-			},
-			'seller':{
-				'C_STORE_SELL_ADD_BASKET': false,
-				'S_STORE_BASKET': false,
-				'C_STORE_COMMIT': false,
-			}
-		};
+		fishsalad = null,
+		endSellingTimer = null;
+	let extendedFunctions = {
+		'banker': {
+			'C_PUT_WARE_ITEM': false,
+		},
+		'seller': {
+			'C_STORE_SELL_ADD_BASKET': false,
+			'S_STORE_BASKET': false,
+			'C_STORE_COMMIT': false,
+		}
+	};
 
 	let config;
 	try {
@@ -71,16 +71,16 @@ module.exports = function autoFishing(mod) {
 	mod.game.initialize(['me']);
 	mod.game.on('enter_game', () => {
 		for (var type in extendedFunctions) {
-			for(var opcode in extendedFunctions[type]){
+			for (var opcode in extendedFunctions[type]) {
 				var test = mod.dispatch.protocolMap.name.get(opcode);
 				if (test !== undefined && test != null) extendedFunctions[type][opcode] = true;
 			}
 		}
-		if (config.filetmode == 'bank' &&Object.values(extendedFunctions.banker).some(x=>!x)) {
+		if (config.filetmode == 'bank' && Object.values(extendedFunctions.banker).some(x => !x)) {
 			config.filetmode = false;
 			mod.command.message('C_PUT_WARE_ITEM not mapped, banker functions will be disabled!');
 		}
-		if (config.filetmode == 'sellfishes' && Object.values(extendedFunctions.seller).some(x=>!x)) {
+		if (config.filetmode == 'sellfishes' && Object.values(extendedFunctions.seller).some(x => !x)) {
 			config.filetmode = false;
 			mod.command.message('C_STORE_SELL_ADD_BASKET|S_STORE_BASKET|C_STORE_COMMIT not mapped, seller functions will be disabled!');
 		}
@@ -273,7 +273,17 @@ module.exports = function autoFishing(mod) {
 			}
 			if (event.type == 9 && needToSellFishes) {
 				currentSeller.contractId = event.id;
-				processSellingFishes();
+				console.log(invFishes.length);
+				console.log(currentSeller.contractId);
+				if (invFishes.length == 0) {
+					clearTimeout(endSellingTimer);
+					endSellingTimer = setTimeout(() => {
+						console.log('end selling');
+						endSelling();
+					}, 500);
+				} else {
+					processSellingFishes();
+				}
 			}
 		}
 	});
@@ -345,14 +355,11 @@ module.exports = function autoFishing(mod) {
 
 	function processDecompositionItem() {
 		let newitem = invFishes.shift();
-		if (currentFish != undefined && newitem != undefined && newitem.dbid == currentFish.dbid)
-			return processDecompositionItem();
-		currentFish = newitem;
-		if (currentFish != undefined && ContractId != null && enabled) {
+		if (newitem != undefined && ContractId != null && enabled) {
 			mod.send('C_RQ_ADD_ITEM_TO_DECOMPOSITION_CONTRACT', 1, {
 				contract: ContractId,
-				dbid: currentFish.dbid,
-				itemid: currentFish.id,
+				dbid: newitem.dbid,
+				itemid: newitem.id,
 				amount: 1
 			});
 		}
@@ -371,7 +378,7 @@ module.exports = function autoFishing(mod) {
 	//endregion
 
 	//region Inv part
-	mod.hook('S_INVEN', 16, {
+	mod.hook('S_INVEN', 17, {
 		order: -1000
 	}, event => {
 		if (!enabled || event.items.length == 0) return;
@@ -394,7 +401,7 @@ module.exports = function autoFishing(mod) {
 					fishsalad = obj;
 				}
 			});
-		if (needToSellFishes&&!sellerUsed) {
+		if (needToSellFishes && !sellerUsed) {
 			event.items.forEach(function (obj) {
 				if (ITEMS_SELLER.includes(obj.id)) {
 					invSeller = {
@@ -551,7 +558,7 @@ module.exports = function autoFishing(mod) {
 					}, 3000);
 				}
 			}
-			if(needToSellFishes){
+			if (needToSellFishes) {
 				if (event.gameId == currentSeller.gameId && event.questId == 1960) {
 					currentSeller.dialogId = event.id;
 					setTimeout(() => {
@@ -568,7 +575,7 @@ module.exports = function autoFishing(mod) {
 	});
 	//region Seller
 	mod.tryHook('S_STORE_BASKET', 'raw', _ => {
-		if (enabled&&needToSellFishes) {
+		if (enabled && needToSellFishes) {
 			if (invFishes.length > 0 && sellItemsCount < 7) {
 				sellItemsCount++;
 				setTimeout(() => {
@@ -578,30 +585,33 @@ module.exports = function autoFishing(mod) {
 				setTimeout(() => {
 					if (sellItemsCount > 0)
 						sellFishes();
+					else {
+						clearTimeout(endSellingTimer);
+						endSellingTimer = setTimeout(() => {
+							console.log('end selling');
+							endSelling();
+						}, 1000);
+					}
 				}, 300);
 			}
 		}
 	});
-	mod.hook('S_ACCEPT_CONTRACT', 1, event => {
-		if (enabled&&needToSellFishes&&event.type==9&&event.id==currentSeller.contractId&&invFishes.length==0) {
-			setTimeout(() => {
-					endSelling();
-			}, 300);
-		}
-	});
-	function sellFishes(){
-		sellItemsCount=0;
+
+	function sellFishes() {
+		sellItemsCount = 0;
 		mod.send('C_STORE_COMMIT', 1, {
 			gameId: mod.game.me.gameId,
 			npc: currentSeller.contractId
 		});
 	}
-	function endSelling(){
-			mod.send('C_CANCEL_CONTRACT', 1, {
-				type: 9,
-				id: currentSeller.contractId
-			});
+
+	function endSelling() {
+		mod.send('C_CANCEL_CONTRACT', 1, {
+			type: 9,
+			id: currentSeller.contractId
+		});
 	}
+
 	function useSeller() {
 		if (scrollsInCooldown) {
 			console.log("Seller in cooldown retry in 1 min");
@@ -630,18 +640,16 @@ module.exports = function autoFishing(mod) {
 			enabled = false;
 		}
 	}
-	function processSellingFishes(){
+
+	function processSellingFishes() {
 		let newitem = invFishes.shift();
-		if (currentFish != undefined && newitem != undefined && newitem.dbid == currentFish.dbid)
-			return processSellingFishes();
-		currentFish = newitem;
-		if (currentFish != undefined&&currentSeller!=null && enabled) {
+		if (newitem != undefined && currentSeller != null && enabled) {
 			mod.send('C_STORE_SELL_ADD_BASKET', 1, {
 				cid: mod.game.me.gameId,
 				npc: currentSeller.contractId,
-				item: currentFish.id,
+				item: newitem.id,
 				quantity: 1,
-				slot:currentFish.slot
+				slot: newitem.slot
 			});
 		}
 	}
@@ -804,7 +812,7 @@ module.exports = function autoFishing(mod) {
 							mod.command.message(`Incorrect value,set to bank ${config.bankAmount} files after filling inventory`);
 						}
 						config.filetmode = 'bank';
-						if (config.filetmode == 'bank' &&Object.values(extendedFunctions.banker).some(x=>!x)) {
+						if (config.filetmode == 'bank' && Object.values(extendedFunctions.banker).some(x => !x)) {
 							config.filetmode = false;
 							mod.command.message('C_PUT_WARE_ITEM not mapped, banker functions for auto-fishing will be disabled!');
 						}
@@ -835,7 +843,7 @@ module.exports = function autoFishing(mod) {
 			case 'sellfishes':
 				mod.command.message(`Set to sell fishes after filling inventory`);
 				config.filetmode = 'sellfishes';
-				if (config.filetmode == 'sellfishes' && Object.values(extendedFunctions.seller).some(x=>!x)) {
+				if (config.filetmode == 'sellfishes' && Object.values(extendedFunctions.seller).some(x => !x)) {
 					config.filetmode = false;
 					mod.command.message('C_STORE_SELL_ADD_BASKET|S_STORE_BASKET|C_STORE_COMMIT not mapped, seller functions will be disabled!');
 				}
