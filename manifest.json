@@ -1,8 +1,6 @@
 {
     "files": {
-        "Available Fish.txt": "0cda9f49eb92c5a3e18ab96d03f04a690c481470dbf558efce60dc34af29ca00",
-        "Available Recipes.txt": "f2c269c1b2e7dfbaa362df48af66995b7070f804c3879309c892d855adf40a80",
-        "index.js": "e7c9e9e720184f5a03a17703474f6d155fd352930b9ab0cc957825ef167995e0",
+        "index.js": "986f9e298356c3a6bdd272524b7dc71dc9ad4e806808d592572b98368e95c74a",
         "module.json": "c12709972bc6bf77c8b652dfe551bd0e48939dc57d097b4fef8a05b8797cee92"
     },
     "defs": {
@@ -34,7 +32,7 @@
         "S_REQUEST_CONTRACT": 1,
         "S_RP_ADD_ITEM_TO_DECOMPOSITION_CONTRACT": 1,
         "S_RP_COMMIT_DECOMPOSITION_CONTRACT": "raw",
-        "S_SPAWN_NPC": [10,11],
+        "S_SPAWN_NPC": 11,
         "S_START_COOLTIME_ITEM": 1,
         "S_START_FISHING_MINIGAME": 1,
         "S_SYSTEM_MESSAGE": 1

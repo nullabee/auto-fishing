@@ -41,7 +41,8 @@ module.exports = function autoFishing(mod) {
 		sellerUsed = false,
 		findedFillets = null,
 		fishsalad = null,
-		endSellingTimer = null;
+		endSellingTimer = null,
+		closestSellerNpc=null;
 	let extendedFunctions = {
 		'banker': {
 			'C_PUT_WARE_ITEM': false,
@@ -59,11 +60,15 @@ module.exports = function autoFishing(mod) {
 		if (!config.delay > 0) {
 			config.delay = 3000;
 		}
+		if (!config.contdist > 0) {
+			config.contdist = 6;
+		}
 		if (config.blacklist === undefined || config.blacklist == null)
 			config.blacklist = [];
 	} catch (error) {
 		config = {};
 		config.delay = 3000;
+		config.contdist = 6;
 		config.blacklist = [];
 	}
 
@@ -92,6 +97,11 @@ module.exports = function autoFishing(mod) {
 	mod.hook('S_FISHING_BITE', 1, event => {
 		if (enabled && mod.game.me.is(event.gameId)) {
 			noItems = false;
+			needToBankFilets = false;
+			needToCraft = false;
+			needToDecompose = false;
+			needToDropFilets = false;
+			needToSellFishes = false; //if something fucked
 			rodId = event.rodId;
 			setTimeout(() => {
 				mod.send('C_START_FISHING_MINIGAME', 1, {});
@@ -159,7 +169,7 @@ module.exports = function autoFishing(mod) {
 							}, 2000);
 							break;
 						default:
-							console.log('Inv full, mod will be disabled');
+							mod.command.message('Inv full, mod will be disabled');
 							enabled = false;
 							break;
 					}
@@ -187,7 +197,7 @@ module.exports = function autoFishing(mod) {
 
 	function useRod() {
 		if (enabled && playerLocation != undefined && rodId != null) {
-			if (config.autosalad && fishsalad != null && abnormalityDuration(70261) == 0 && fishsalad.amount > 0) {
+			if (config.autosalad && fishsalad != null && abnormalityDuration(70261) <=0 && fishsalad.amount > 0) {
 				fishsalad.amount -= 1;
 				mod.toServer('C_USE_ITEM', 3, {
 					gameId: mod.game.me.gameId,
@@ -220,6 +230,9 @@ module.exports = function autoFishing(mod) {
 					unk4: true
 				});
 			}, 500);
+		}else{
+			mod.command.message("Something went wrong when using fishing rod, mod will be disabled =(");
+			enabled = false;
 		}
 
 
@@ -246,17 +259,7 @@ module.exports = function autoFishing(mod) {
 
 	//region Locations hooks
 	mod.hook('C_PLAYER_LOCATION', 5, event => {
-		if ([0, 1, 5, 6].indexOf(event.type) > -1)
-			playerLocation = event;
-	});
-	mod.hook('C_USE_ITEM', 3, event => {
-		if (enabled && playerLocation == undefined) {
-			playerLocation = {
-				loc: event.loc,
-				w: event.w
-			};
-		}
-
+		playerLocation = event;
 	});
 	//endregion
 
@@ -273,12 +276,9 @@ module.exports = function autoFishing(mod) {
 			}
 			if (event.type == 9 && needToSellFishes) {
 				currentSeller.contractId = event.id;
-				console.log(invFishes.length);
-				console.log(currentSeller.contractId);
 				if (invFishes.length == 0) {
 					clearTimeout(endSellingTimer);
 					endSellingTimer = setTimeout(() => {
-						console.log('end selling');
 						endSelling();
 					}, 500);
 				} else {
@@ -315,6 +315,11 @@ module.exports = function autoFishing(mod) {
 	mod.hook('S_RP_ADD_ITEM_TO_DECOMPOSITION_CONTRACT', 1, event => {
 		if (enabled && needToDecompose) {
 			decomposeitemscount++;
+			if (!event.success) {
+				mod.command.message("Something went wrong, mod will be disabled =(");
+				enabled = false;
+				return;
+			}
 			if (invFishes.length > 0 && decomposeitemscount < 20) {
 				setTimeout(() => {
 					processDecompositionItem();
@@ -322,7 +327,7 @@ module.exports = function autoFishing(mod) {
 			} else {
 				setTimeout(() => {
 					if (decomposeitemscount > 0)
-						decompose();
+						commitDecomposition();
 				}, 300);
 			}
 		}
@@ -338,13 +343,14 @@ module.exports = function autoFishing(mod) {
 	});
 
 	function requestDecomposition() {
-		mod.send('C_REQUEST_CONTRACT', 1, {
-			type: 89
-		});
+		if (enabled)
+			mod.send('C_REQUEST_CONTRACT', 1, {
+				type: 89
+			});
 	}
 
-	function decompose() {
-		if (ContractId != null) {
+	function commitDecomposition() {
+		if (enabled && ContractId != null) {
 			decomposeitemscount = 0;
 			mod.send('C_RQ_COMMIT_DECOMPOSITION_CONTRACT', 1, {
 				contract: ContractId
@@ -366,7 +372,7 @@ module.exports = function autoFishing(mod) {
 	}
 
 	function endDecompose() {
-		if (ContractId != null) {
+		if (enabled && ContractId != null) {
 			noItems = false;
 			mod.send('C_CANCEL_CONTRACT', 1, {
 				type: 89,
@@ -381,13 +387,13 @@ module.exports = function autoFishing(mod) {
 	mod.hook('S_INVEN', 17, {
 		order: -1000
 	}, event => {
-		if (!enabled || event.items.length == 0) return;
+		if(!enabled) return;
+		if (event.first) {
+			invFishes = [];
+		}
 		event.items.forEach(function (obj) {
 			if (ITEMS_FISHES.includes(obj.id) && !config.blacklist.includes(obj.id)) {
-				let index = invFishes.findIndex(x => x.dbid == obj.dbid);
-				if (index == -1 && obj.dbid != 0) {
-					invFishes.push(obj);
-				}
+				invFishes.push(obj);
 			}
 		});
 		event.items.forEach(function (obj) {
@@ -408,7 +414,21 @@ module.exports = function autoFishing(mod) {
 						id: obj.id
 					};
 					sellerUsed = true;
-					useSeller();
+					if(config.selltonpc){
+						if(closestSellerNpc==null||closestSellerNpc.loc.dist3D(playerLocation.loc) > config.contdist*25){
+							mod.command.message('Error: no seller npc at acceptable range');
+							enabled=false;
+							return;
+						}
+						currentSeller=Object.create(closestSellerNpc);
+						setTimeout(() => {
+							mod.send('C_NPC_CONTACT', 2, {
+								gameId: currentSeller.gameId
+							})
+						}, 3000);
+					}else{
+						useSeller();
+					}
 				}
 			});
 		}
@@ -461,9 +481,10 @@ module.exports = function autoFishing(mod) {
 	});
 
 	function getInventory() {
-		mod.send('C_SHOW_INVEN', 1, {
-			unk: 1
-		});
+		if (enabled)
+			mod.send('C_SHOW_INVEN', 1, {
+				unk: 1
+			});
 	}
 	//endregion
 
@@ -509,7 +530,7 @@ module.exports = function autoFishing(mod) {
 
 
 	function startCraft() {
-		if (config.recipe > 0)
+		if (enabled && config.recipe > 0)
 			mod.send('C_START_PRODUCE', 1, {
 				recipe: config.recipe,
 				unk: 0
@@ -519,7 +540,10 @@ module.exports = function autoFishing(mod) {
 	//endregion
 
 	//region NPC
-	mod.hook('S_SPAWN_NPC', mod.majorPatchVersion >= 79 ? 11 : 10, event => {
+	mod.hook('S_SPAWN_NPC', 11, event => {
+		if (event.templateId == 9903) {
+			closestSellerNpc = event;
+		}
 		if (enabled) {
 			if (needToBankFilets && currentBanker == null) {
 				if (event.relation == 12 && event.templateId == 1962 && mod.game.me.is(event.owner)) {
@@ -531,7 +555,7 @@ module.exports = function autoFishing(mod) {
 					}, 3000);
 				}
 			}
-			if (needToSellFishes && currentSeller == null) {
+			if (needToSellFishes&&!config.selltonpc && currentSeller == null) {
 				if (event.relation == 12 && event.templateId == 1960 && mod.game.me.is(event.owner)) {
 					currentSeller = event;
 					setTimeout(() => {
@@ -559,7 +583,7 @@ module.exports = function autoFishing(mod) {
 				}
 			}
 			if (needToSellFishes) {
-				if (event.gameId == currentSeller.gameId && event.questId == 1960) {
+				if (event.gameId == currentSeller.gameId && (event.questId == 1960||event.questId ==9903)) {
 					currentSeller.dialogId = event.id;
 					setTimeout(() => {
 						mod.send('C_DIALOG', 1, {
@@ -588,7 +612,6 @@ module.exports = function autoFishing(mod) {
 					else {
 						clearTimeout(endSellingTimer);
 						endSellingTimer = setTimeout(() => {
-							console.log('end selling');
 							endSelling();
 						}, 1000);
 					}
@@ -598,21 +621,26 @@ module.exports = function autoFishing(mod) {
 	});
 
 	function sellFishes() {
-		sellItemsCount = 0;
-		mod.send('C_STORE_COMMIT', 1, {
-			gameId: mod.game.me.gameId,
-			npc: currentSeller.contractId
-		});
+		if (enabled) {
+			sellItemsCount = 0;
+			mod.send('C_STORE_COMMIT', 1, {
+				gameId: mod.game.me.gameId,
+				npc: currentSeller.contractId
+			});
+		}
 	}
 
 	function endSelling() {
-		mod.send('C_CANCEL_CONTRACT', 1, {
-			type: 9,
-			id: currentSeller.contractId
-		});
+		if (enabled) {
+			mod.send('C_CANCEL_CONTRACT', 1, {
+				type: 9,
+				id: currentSeller.contractId
+			});
+		}
 	}
 
 	function useSeller() {
+		if (!enabled) return;
 		if (scrollsInCooldown) {
 			console.log("Seller in cooldown retry in 1 min");
 			setTimeout(() => {
@@ -651,12 +679,15 @@ module.exports = function autoFishing(mod) {
 				quantity: 1,
 				slot: newitem.slot
 			});
+		}else{
+			mod.command.message("Something went wrong while selling fishes, mod will be disabled");
 		}
 	}
 	//endregion
 
 	//region Banker
 	function useBanker() {
+		if (!enabled) return;
 		if (scrollsInCooldown) {
 			console.log("Banker in cooldown retry in 1 min");
 			setTimeout(() => {
@@ -689,6 +720,7 @@ module.exports = function autoFishing(mod) {
 	}
 
 	function processBankingFillets() {
+		if (!enabled) return;
 		if (findedFillets != null) {
 			let amount = config.bankAmount > findedFillets.amount ? findedFillets.amount : config.bankAmount;
 			amount = findedFillets.amount - amount < 150 ? amount - 150 : amount;
@@ -848,6 +880,23 @@ module.exports = function autoFishing(mod) {
 					mod.command.message('C_STORE_SELL_ADD_BASKET|S_STORE_BASKET|C_STORE_COMMIT not mapped, seller functions will be disabled!');
 				}
 				break;
+			case 'selltonpc':
+				config.selltonpc = !config.selltonpc;
+				mod.command.message(`Sell to npc instead using scrolls ${config.selltonpc?'en':'dis'}abled.`);
+				var dist = parseInt(arg);
+				if (dist > 0) {
+					if(dist>35)
+						dist=6;
+					config.contdist = dist;
+					mod.command.message(`Distance for NPC contact set to: ${dist}m`);
+				}
+				if(config.selltonpc)
+				{
+					if(closestSellerNpc==null||closestSellerNpc.loc.dist3D(playerLocation.loc) > config.contdist*25){
+						mod.command.message('Warning: no seller npc at acceptable range');
+					}
+				}
+				break;
 			case 'autosalad':
 				config.autosalad = !config.autosalad;
 				mod.command.message('Auto use of Fish Salad ' + (config.autosalad ? 'en' : 'dis') + 'abled');
@@ -858,11 +907,36 @@ module.exports = function autoFishing(mod) {
 				break;
 			default:
 				enabled = !enabled;
-				invFishes = [];
+				rodId = null,
+				ContractId = null,
+				needToCraft = false,
+				needToDecompose = false,
+				needToDropFilets = false,
+				needToBankFilets = false,
+				needToSellFishes = false,
+				noItems = false,
+				invFishes = [],
+				decomposeitemscount = 0,
+				sellItemsCount = 0,
+				lastRecipe = null,
+				invBanker = null,
+				scrollsInCooldown = false,
+				invSeller = null,
+				currentBanker = null,
+				currentSeller = null,
+				bankerUsed = false,
+				sellerUsed = false,
+				findedFillets = null,
+				fishsalad = null,
+				endSellingTimer = null;
+				if(config.selltonpc){
+					if(closestSellerNpc==null||closestSellerNpc.loc.dist3D(playerLocation.loc) > config.contdist*25){
+						mod.command.message('Warning: no seller npc at acceptable range');
+					}
+				}
 				if (enabled)
 					mod.command.message('autoFishing on. Manually start fishing');
 				else {
-					rodId = null;
 					mod.command.message('autoFishing off');
 				}
 				break;
