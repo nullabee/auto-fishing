@@ -230,12 +230,7 @@ module.exports = function autoFishing(mod) {
 					unk4: true
 				});
 			}, 500);
-		}else{
-			mod.command.message("Something went wrong when using fishing rod, mod will be disabled =(");
-			enabled = false;
 		}
-
-
 	}
 
 	function useBait() {
@@ -315,11 +310,6 @@ module.exports = function autoFishing(mod) {
 	mod.hook('S_RP_ADD_ITEM_TO_DECOMPOSITION_CONTRACT', 1, event => {
 		if (enabled && needToDecompose) {
 			decomposeitemscount++;
-			if (!event.success) {
-				mod.command.message("Something went wrong, mod will be disabled =(");
-				enabled = false;
-				return;
-			}
 			if (invFishes.length > 0 && decomposeitemscount < 20) {
 				setTimeout(() => {
 					processDecompositionItem();
