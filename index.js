@@ -404,6 +404,7 @@ module.exports = function autoFishing(mod) {
 					enabled=false;
 					return;
 				}
+				sellerUsed = true;
 				currentSeller=Object.create(closestSellerNpc);
 				setTimeout(() => {
 					mod.send('C_NPC_CONTACT', 2, {
