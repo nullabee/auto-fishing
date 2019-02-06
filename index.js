@@ -398,29 +398,30 @@ module.exports = function autoFishing(mod) {
 				}
 			});
 		if (needToSellFishes && !sellerUsed) {
-			event.items.forEach(function (obj) {
-				if (ITEMS_SELLER.includes(obj.id)) {
-					invSeller = {
-						id: obj.id
-					};
-					sellerUsed = true;
-					if(config.selltonpc){
-						if(closestSellerNpc==null||closestSellerNpc.loc.dist3D(playerLocation.loc) > config.contdist*25){
-							mod.command.message('Error: no seller npc at acceptable range');
-							enabled=false;
-							return;
-						}
-						currentSeller=Object.create(closestSellerNpc);
-						setTimeout(() => {
-							mod.send('C_NPC_CONTACT', 2, {
-								gameId: currentSeller.gameId
-							})
-						}, 3000);
-					}else{
+			if(config.selltonpc){
+				if(closestSellerNpc==null||closestSellerNpc.loc.dist3D(playerLocation.loc) > config.contdist*25){
+					mod.command.message('Error: no seller npc at acceptable range');
+					enabled=false;
+					return;
+				}
+				currentSeller=Object.create(closestSellerNpc);
+				setTimeout(() => {
+					mod.send('C_NPC_CONTACT', 2, {
+						gameId: currentSeller.gameId
+					})
+				}, 3000);
+			}else{
+				event.items.forEach(function (obj) {
+					if (ITEMS_SELLER.includes(obj.id)) {
+						invSeller = {
+							id: obj.id
+						};
+						sellerUsed = true;
 						useSeller();
 					}
-				}
-			});
+				});
+			}
+			
 		}
 		if (findedFillets != null && needToDropFilets && config.filetmode == 'drop' && config.dropAmount > 150) {
 			needToDropFilets = false;
