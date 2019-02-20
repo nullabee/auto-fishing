@@ -389,10 +389,10 @@ module.exports = function autoFishing(mod) {
 	}, event => {
 		if (!enabled) return;
 		if (event.first) {
-			if(!needToDecompose&&!sellerUsed)
+			if(!needToDecompose&&!needToSellFishes)
 				invFishes = [];
 		}
-		if(!needToDecompose&&!sellerUsed)
+		if(!needToDecompose&&!needToSellFishes)
 			event.items.forEach(function (obj) {
 				if (ITEMS_FISHES.includes(obj.id) && !config.blacklist.includes(obj.id)) {
 					invFishes.push(obj);
