@@ -1,6 +1,6 @@
 {
     "files": {
-        "index.js": "82b31eae47fbf848f926a47b889485ebcdd23d29f9996ddad9584ea3ad3acc43",
+        "index.js": "d276e889b351af66aefbfd93f254abc1126f14b8e081a4425f2241595c433d89",
         "module.json": "c12709972bc6bf77c8b652dfe551bd0e48939dc57d097b4fef8a05b8797cee92"
     },
     "defs": {
@@ -11,7 +11,6 @@
         "C_NPC_CONTACT": 2,
         "C_PCBANGINVENTORY_USE_SLOT": 1,
         "C_PLAYER_LOCATION": 5,
-        "C_PUT_WARE_ITEM": 2,
         "C_REQUEST_CONTRACT": 1,
         "C_RQ_ADD_ITEM_TO_DECOMPOSITION_CONTRACT": 1,
         "C_RQ_COMMIT_DECOMPOSITION_CONTRACT": 1,

@@ -8,7 +8,7 @@ Move\merge protocol files to node_modules\tera-data\map in Caali proxy.<br>
 | ------------- | ------------- | ------------- |
 | fish | to enable mod  |  |
 | fish sellfishes | Sell fishes when inv full | You need traveling merchant scroll in inventory and additional opcodes&defs |
-| fish selltonpc `range` | Option for `fish sellfishes` | Sell to Fishing Supplie. `range` is distance in meters for npc contact, 'ethical' is 6m. Note: npc contact exploit fixed on some regions, so max distance is 6m.|
+| fish selltonpc `range` | Option for `fish sellfishes` | Sell to Fishing Supplie. `range` is distance in meters for npc contact, ethical is 6m.|
 | fish autosalad | to enable auto using fish salad  |  |
 | fish blacklist add link | add item to blacklist for auto decompose  | link from inventory. Blacklist means, that you don't want this fishes be dismantled |
 | fish blacklist remove link | remove item from blacklist for auto decompose  |  link from inventory |

@@ -19,7 +19,7 @@ const ITEMS_SELLER = [160324, 170004, 210109, 60262];
 module.exports = function autoFishing(mod) {
 	let rodId = null,
 		enabled = false,
-		playerLocation={},
+		playerLocation = {},
 		ContractId = null,
 		needToCraft = false,
 		needToDecompose = false,
@@ -259,9 +259,9 @@ module.exports = function autoFishing(mod) {
 		playerLocation = event;
 	});
 	mod.hook('S_LOAD_TOPO', 3, event => {
-		playerLocation.loc=event.loc;
-		playerLocation.w=0;
-		if(enabled)
+		playerLocation.loc = event.loc;
+		playerLocation.w = 0;
+		if (enabled)
 			clearTimeouts();
 	});
 	//endregion
@@ -283,7 +283,7 @@ module.exports = function autoFishing(mod) {
 					clearTimeout(endSellingTimer);
 					endSellingTimer = setTimeout(() => {
 						endSelling();
-					}, 500);
+					}, 5000);
 				} else {
 					processSellingFishes();
 				}
@@ -389,13 +389,15 @@ module.exports = function autoFishing(mod) {
 	}, event => {
 		if (!enabled) return;
 		if (event.first) {
-			invFishes = [];
+			if(!needToDecompose&&!sellerUsed)
+				invFishes = [];
 		}
-		event.items.forEach(function (obj) {
-			if (ITEMS_FISHES.includes(obj.id) && !config.blacklist.includes(obj.id)) {
-				invFishes.push(obj);
-			}
-		});
+		if(!needToDecompose&&!sellerUsed)
+			event.items.forEach(function (obj) {
+				if (ITEMS_FISHES.includes(obj.id) && !config.blacklist.includes(obj.id)) {
+					invFishes.push(obj);
+				}
+			});
 		event.items.forEach(function (obj) {
 			if (obj.id == 204052) {
 				findedFillets = obj;
@@ -474,7 +476,7 @@ module.exports = function autoFishing(mod) {
 		}
 	});
 	mod.hook('S_START_COOLTIME_ITEM', 1, event => {
-		if (ITEMS_BANKER.includes(event.item) && event.cooldown > 0 && !scrollsInCooldown) {
+		if ((ITEMS_BANKER.includes(event.item)||ITEMS_SELLER.includes(event.item)) && event.cooldown > 0 && !scrollsInCooldown) {
 			scrollsInCooldown = true;
 			timeouts.push(setTimeout(() => {
 				scrollsInCooldown = false;
@@ -505,7 +507,8 @@ module.exports = function autoFishing(mod) {
 	function saveConfig() {
 		fs.writeFile(path.join(__dirname, 'config.json'), JSON.stringify(config, null, '\t'), err => {});
 	}
-	function clearTimeouts(){
+
+	function clearTimeouts() {
 		for (var i = 0; i < timeouts.length; i++) {
 			clearTimeout(timeouts[i]);
 			delete timeouts[i];
@@ -579,6 +582,7 @@ module.exports = function autoFishing(mod) {
 		}
 	});
 	mod.hook('S_DIALOG', 2, event => {
+		
 		if (enabled) {
 			if (needToBankFilets) {
 				if (event.gameId == currentBanker.gameId && event.questId == 1962) {
@@ -616,6 +620,12 @@ module.exports = function autoFishing(mod) {
 				timeouts.push(setTimeout(() => {
 					processSellingFishes();
 				}, 200));
+				if (invFishes.length < 8) {
+					clearTimeout(endSellingTimer);
+					endSellingTimer = setTimeout(() => {
+						endSelling();
+					}, 10000);
+				}
 			} else {
 				timeouts.push(setTimeout(() => {
 					if (sellItemsCount > 0)
@@ -691,7 +701,10 @@ module.exports = function autoFishing(mod) {
 				slot: newitem.slot
 			});
 		} else {
-			mod.command.message("Something went wrong while selling fishes, mod will be disabled");
+			clearTimeout(endSellingTimer);
+			endSellingTimer = setTimeout(() => {
+				endSelling();
+			}, 1000);
 		}
 	}
 	//endregion
@@ -896,7 +909,7 @@ module.exports = function autoFishing(mod) {
 				mod.command.message(`Sell to npc instead using scrolls ${config.selltonpc?'en':'dis'}abled.`);
 				var dist = parseInt(arg);
 				if (dist > 0) {
-					if (dist > 35)
+					if (dist > 10)
 						dist = 6;
 					config.contdist = dist;
 					mod.command.message(`Distance for NPC contact set to: ${dist}m`);
@@ -945,8 +958,10 @@ module.exports = function autoFishing(mod) {
 						mod.command.message('Warning: no seller npc at acceptable range');
 					}
 				}
-				if (enabled)
+				if (enabled){
 					mod.command.message('autoFishing on. Manually start fishing');
+					getInventory();
+				}
 				else {
 					mod.command.message('autoFishing off');
 				}
