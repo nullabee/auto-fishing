@@ -1,6 +1,6 @@
 {
     "files": {
-        "index.js": "2dcb741c37d15b914e33bff474fc71e9046bc29bd8fb71ab8fd8f376fe917a4d",
+        "index.js": "34156a26b5837a666fd205e9801da677e45ba397f45ac7eb7aab30e6bb302d71",
         "module.json": "c12709972bc6bf77c8b652dfe551bd0e48939dc57d097b4fef8a05b8797cee92"
     },
     "defs": {
@@ -12,6 +12,7 @@
         "C_PCBANGINVENTORY_USE_SLOT": 1,
         "C_PLAYER_LOCATION": 5,
         "C_REQUEST_CONTRACT": 1,
+        "C_RETURN_TO_LOBBY": 1,
         "C_RQ_ADD_ITEM_TO_DECOMPOSITION_CONTRACT": 1,
         "C_RQ_COMMIT_DECOMPOSITION_CONTRACT": 1,
         "C_SHOW_INVEN": 1,
@@ -24,6 +25,7 @@
         "S_CANCEL_CONTRACT": 1,
         "S_DIALOG": 2,
         "S_END_PRODUCE": 1,
+        "S_EXIT": 3,
         "S_FISHING_BITE": 1,
         "S_FISHING_CATCH": 1,
         "S_FISHING_CATCH_FAIL": 1,

@@ -264,6 +264,14 @@ module.exports = function autoFishing(mod) {
 		if (enabled)
 			clearTimeouts();
 	});
+	mod.hook('C_RETURN_TO_LOBBY', 1, event => {
+		if (enabled)
+			clearTimeouts();
+	});
+	mod.hook('S_EXIT', 3, event => {
+		if (enabled)
+			clearTimeouts();
+	});
 	//endregion
 
 	//region Contract hooks
@@ -555,7 +563,7 @@ module.exports = function autoFishing(mod) {
 
 	//region NPC
 	mod.hook('S_SPAWN_NPC', 11, event => {
-		if (event.templateId == 9903) {
+		if (event.templateId == 9903||event.templateId==9906) {
 			closestSellerNpc = event;
 		}
 		if (enabled) {
@@ -598,7 +606,7 @@ module.exports = function autoFishing(mod) {
 				}
 			}
 			if (needToSellFishes) {
-				if (event.gameId == currentSeller.gameId && (event.questId == 1960 || event.questId == 9903)) {
+				if (event.gameId == currentSeller.gameId && (event.questId == 1960 || event.questId == 9903 ||event.questId == 9906)) {
 					currentSeller.dialogId = event.id;
 					timeouts.push(setTimeout(() => {
 						mod.send('C_DIALOG', 1, {
