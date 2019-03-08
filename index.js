@@ -15,7 +15,7 @@ const ITEMS_FISHES = [
 	206500, 206501, 206502, 206503, 206504, 206505 //baf
 ];
 const ITEMS_BANKER = [60264, 160326, 170003, 216754];
-const ITEMS_SELLER = [160324, 170004, 210109, 60262];
+const ITEMS_SELLER = [160324, 170004, 210109, 60262,60263,160325,170006,210110];
 module.exports = function autoFishing(mod) {
 	let rodId = null,
 		enabled = false,
@@ -578,7 +578,7 @@ module.exports = function autoFishing(mod) {
 				}
 			}
 			if (needToSellFishes && !config.selltonpc && currentSeller == null) {
-				if (event.relation == 12 && event.templateId == 1960 && mod.game.me.is(event.owner)) {
+				if (event.relation == 12 && (event.templateId == 1960||event.templateId == 1961) && mod.game.me.is(event.owner)) {
 					currentSeller = event;
 					timeouts.push(setTimeout(() => {
 						mod.send('C_NPC_CONTACT', 2, {
@@ -606,7 +606,7 @@ module.exports = function autoFishing(mod) {
 				}
 			}
 			if (needToSellFishes) {
-				if (event.gameId == currentSeller.gameId && (event.questId == 1960 || event.questId == 9903 ||event.questId == 9906)) {
+				if (event.gameId == currentSeller.gameId && (event.questId == 1960||event.questId == 1961 || event.questId == 9903 ||event.questId == 9906)) {
 					currentSeller.dialogId = event.id;
 					timeouts.push(setTimeout(() => {
 						mod.send('C_DIALOG', 1, {
