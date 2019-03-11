@@ -14,8 +14,8 @@ const ITEMS_FISHES = [
 	206431, 206432, 206433, 206434, 206435, //tier 10
 	206500, 206501, 206502, 206503, 206504, 206505 //baf
 ];
-const ITEMS_BANKER = [60264, 160326, 170003, 216754];
-const ITEMS_SELLER = [160324, 170004, 210109, 60262,60263,160325,170006,210110];
+const ITEMS_BANKER = [60264, 160326, 170003, 210111, 216754];
+const ITEMS_SELLER = [160324, 170004, 210109, 60262, 60263, 160325, 170006, 210110];
 module.exports = function autoFishing(mod) {
 	let rodId = null,
 		enabled = false,
@@ -55,27 +55,14 @@ module.exports = function autoFishing(mod) {
 		}
 	};
 
-	let config;
-	try {
-		config = require('./config.json');
-		if (!config.delay > 0) {
-			config.delay = 3000;
-		}
-		if (!config.contdist > 0) {
-			config.contdist = 6;
-		}
-		if (config.blacklist === undefined || config.blacklist == null)
-			config.blacklist = [];
-	} catch (error) {
-		config = {};
-		config.delay = 3000;
-		config.contdist = 6;
-		config.blacklist = [];
-	}
+	let config, settingsPath;
+
 
 	//region Checks
 	mod.game.initialize(['me']);
 	mod.game.on('enter_game', () => {
+		settingsPath = `./${mod.game.me.name}-${mod.game.serverId}.json`;
+		getJsonData(settingsPath);
 		for (var type in extendedFunctions) {
 			for (var opcode in extendedFunctions[type]) {
 				var test = mod.dispatch.protocolMap.name.get(opcode);
@@ -397,10 +384,10 @@ module.exports = function autoFishing(mod) {
 	}, event => {
 		if (!enabled) return;
 		if (event.first) {
-			if(!needToDecompose&&!needToSellFishes)
+			if (!needToDecompose && !needToSellFishes)
 				invFishes = [];
 		}
-		if(!needToDecompose&&!needToSellFishes)
+		if (!needToDecompose && !needToSellFishes)
 			event.items.forEach(function (obj) {
 				if (ITEMS_FISHES.includes(obj.id) && !config.blacklist.includes(obj.id)) {
 					invFishes.push(obj);
@@ -484,7 +471,7 @@ module.exports = function autoFishing(mod) {
 		}
 	});
 	mod.hook('S_START_COOLTIME_ITEM', 1, event => {
-		if ((ITEMS_BANKER.includes(event.item)||ITEMS_SELLER.includes(event.item)) && event.cooldown > 0 && !scrollsInCooldown) {
+		if ((ITEMS_BANKER.includes(event.item) || ITEMS_SELLER.includes(event.item)) && event.cooldown > 0 && !scrollsInCooldown) {
 			scrollsInCooldown = true;
 			timeouts.push(setTimeout(() => {
 				scrollsInCooldown = false;
@@ -512,8 +499,37 @@ module.exports = function autoFishing(mod) {
 		else return null;
 	}
 
-	function saveConfig() {
-		fs.writeFile(path.join(__dirname, 'config.json'), JSON.stringify(config, null, '\t'), err => {});
+	function saveConfig(pathToFile) {
+		fs.writeFile(path.join(__dirname, pathToFile), JSON.stringify(config, null, '\t'), err => {});
+	}
+
+	function getJsonData(pathToFile) {
+		let defaultConfig = null;
+		try {
+			defaultConfig = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json')));
+		} catch (e) {}
+		try {
+			config = JSON.parse(fs.readFileSync(path.join(__dirname, pathToFile)));
+		} catch (e) {
+			if (defaultConfig != null){
+				config = defaultConfig;
+				console.log("auto-fishing: Default config loaded");
+			}
+			else {
+				config = {};
+				config.delay = 3000;
+				config.contdist = 6;
+				config.blacklist = [];
+			}
+		}
+		if (!config.delay > 0) {
+			config.delay = 3000;
+		}
+		if (!config.contdist > 0) {
+			config.contdist = 6;
+		}
+		if (config.blacklist === undefined || config.blacklist == null)
+			config.blacklist = [];
 	}
 
 	function clearTimeouts() {
@@ -563,7 +579,7 @@ module.exports = function autoFishing(mod) {
 
 	//region NPC
 	mod.hook('S_SPAWN_NPC', 11, event => {
-		if (event.templateId == 9903||event.templateId==9906) {
+		if (event.templateId == 9903 || event.templateId == 9906) {
 			closestSellerNpc = event;
 		}
 		if (enabled) {
@@ -578,7 +594,7 @@ module.exports = function autoFishing(mod) {
 				}
 			}
 			if (needToSellFishes && !config.selltonpc && currentSeller == null) {
-				if (event.relation == 12 && (event.templateId == 1960||event.templateId == 1961) && mod.game.me.is(event.owner)) {
+				if (event.relation == 12 && (event.templateId == 1960 || event.templateId == 1961) && mod.game.me.is(event.owner)) {
 					currentSeller = event;
 					timeouts.push(setTimeout(() => {
 						mod.send('C_NPC_CONTACT', 2, {
@@ -590,7 +606,7 @@ module.exports = function autoFishing(mod) {
 		}
 	});
 	mod.hook('S_DIALOG', 2, event => {
-		
+
 		if (enabled) {
 			if (needToBankFilets) {
 				if (event.gameId == currentBanker.gameId && event.questId == 1962) {
@@ -606,7 +622,7 @@ module.exports = function autoFishing(mod) {
 				}
 			}
 			if (needToSellFishes) {
-				if (event.gameId == currentSeller.gameId && (event.questId == 1960||event.questId == 1961 || event.questId == 9903 ||event.questId == 9906)) {
+				if (event.gameId == currentSeller.gameId && (event.questId == 1960 || event.questId == 1961 || event.questId == 9903 || event.questId == 9906)) {
 					currentSeller.dialogId = event.id;
 					timeouts.push(setTimeout(() => {
 						mod.send('C_DIALOG', 1, {
@@ -934,7 +950,25 @@ module.exports = function autoFishing(mod) {
 				break;
 			case 'save':
 				mod.command.message(`Configuration saved`);
-				saveConfig();
+				saveConfig(settingsPath);
+				break;
+			case 'reloadconf':
+				getJsonData(settingsPath);
+				mod.command.message(`Configuration reloaded`);
+				break;
+			case 'printdebug':
+				console.log(`Debug log`);
+				console.log(`bankerUsed=${bankerUsed}`);
+				console.log(`sellerUsed=${sellerUsed}`);
+				console.log(`scrollsInCooldown=${scrollsInCooldown}`);
+				console.log(`noItems=${noItems}`);
+				console.log(`needToDecompose=${needToDecompose}`);
+				console.log(`needToBankFilets=${needToBankFilets}`);
+				console.log(`needToSellFishes=${needToSellFishes}`);
+				console.log(`needToCraft=${needToCraft}`);
+				console.log(`needToDropFilets=${needToDropFilets}`);
+				console.log(`invFishes count=${invFishes.length}`);
+				console.log(`sellItemsCount=${sellItemsCount}`);
 				break;
 			default:
 				enabled = !enabled;
@@ -966,11 +1000,10 @@ module.exports = function autoFishing(mod) {
 						mod.command.message('Warning: no seller npc at acceptable range');
 					}
 				}
-				if (enabled){
+				if (enabled) {
 					mod.command.message('autoFishing on. Manually start fishing');
 					getInventory();
-				}
-				else {
+				} else {
 					mod.command.message('autoFishing off');
 				}
 				break;
