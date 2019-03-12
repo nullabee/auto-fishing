@@ -7,6 +7,7 @@ Move\merge protocol files to node_modules\tera-data\map in Caali proxy.<br>
 | Command  | Description | Hint
 | ------------- | ------------- | ------------- |
 | fish | to enable mod  |  |
+| fish stats| print current fishing statistic  |  |
 | fish sellfishes | Sell fishes when inv full | You need traveling merchant scroll in inventory and additional opcodes&defs |
 | fish selltonpc `range` | Option for `fish sellfishes` | Sell to Fishing Supplie. `range` is distance in meters for npc contact, default is 6m.|
 | fish autosalad | to enable auto using fish salad  |  |

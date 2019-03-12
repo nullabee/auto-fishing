@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const moment = require('moment');
 const ITEMS_FISHES = [
 	206400, 206401, //tier 0
 	206402, 206403, //tier 1
@@ -44,6 +45,7 @@ module.exports = function autoFishing(mod) {
 		endSellingTimer = null,
 		closestSellerNpc = null,
 		timeouts = [];
+
 	let extendedFunctions = {
 		'banker': {
 			'C_PUT_WARE_ITEM': false,
@@ -54,6 +56,11 @@ module.exports = function autoFishing(mod) {
 			'C_STORE_COMMIT': false,
 		}
 	};
+
+	let statistic = [],
+		startTime = null,
+		endTime = null,
+		lastLevel = null;
 
 	let config, settingsPath;
 
@@ -100,6 +107,7 @@ module.exports = function autoFishing(mod) {
 
 	mod.hook('S_START_FISHING_MINIGAME', 1, event => {
 		if (enabled && mod.game.me.is(event.gameId)) {
+			lastLevel = event.level;
 			timeouts.push(setTimeout(() => {
 				mod.send('C_END_FISHING_MINIGAME', 1, {
 					success: true
@@ -109,6 +117,13 @@ module.exports = function autoFishing(mod) {
 	})
 	mod.hook('S_FISHING_CATCH', 1, event => {
 		if (enabled && mod.game.me.is(event.gameId)) {
+			endTime = moment();
+			if (startTime != null && lastLevel != null)
+				statistic.push({
+					level: lastLevel,
+					time: endTime.diff(startTime)
+				});
+			startTime = moment();
 			timeouts.push(setTimeout(() => {
 				useRod();
 			}, rng(5000, 6000)));
@@ -419,15 +434,16 @@ module.exports = function autoFishing(mod) {
 					});
 				}, 3000));
 			} else {
-				event.items.forEach(function (obj) {
-					if (ITEMS_SELLER.includes(obj.id)) {
+				for (let seller of event.items) {
+					if (ITEMS_SELLER.includes(seller.id)) {
 						invSeller = {
-							id: obj.id
+							id: seller.id
 						};
 						sellerUsed = true;
 						useSeller();
+						break;
 					}
-				});
+				}
 			}
 
 		}
@@ -446,15 +462,16 @@ module.exports = function autoFishing(mod) {
 		}
 		if (findedFillets != null && needToBankFilets && !bankerUsed && config.filetmode == 'bank' && config.bankAmount > 150) {
 			if (pcbangBanker == null) {
-				event.items.forEach(function (obj) {
-					if (ITEMS_BANKER.includes(obj.id)) {
+				for (let banker of event.items) {
+					if (ITEMS_BANKER.includes(banker.id)) {
 						invBanker = {
-							id: obj.id
+							id: banker.id
 						};
 						bankerUsed = true;
 						useBanker();
+						break;
 					}
-				});
+				}
 			} else {
 				bankerUsed = true;
 				useBanker();
@@ -511,11 +528,10 @@ module.exports = function autoFishing(mod) {
 		try {
 			config = JSON.parse(fs.readFileSync(path.join(__dirname, pathToFile)));
 		} catch (e) {
-			if (defaultConfig != null){
+			if (defaultConfig != null) {
 				config = defaultConfig;
 				console.log("auto-fishing: Default config loaded");
-			}
-			else {
+			} else {
 				config = {};
 				config.delay = 3000;
 				config.contdist = 6;
@@ -956,6 +972,19 @@ module.exports = function autoFishing(mod) {
 				getJsonData(settingsPath);
 				mod.command.message(`Configuration reloaded`);
 				break;
+			case 'stats':
+				var gr = statistic.reduce((acc, val) => {
+					(acc[val['level']] = acc[val['level']] || []).push(val);
+					return acc;
+				},{});
+				mod.command.message(`Printing stats.`);
+				for (var lv in gr) {
+					mod.command.message(`${lv} level:${gr[lv].length}`);
+				}
+				var timePerFish = statistic.reduce((prev, next) => prev + next.time, 0)/statistic.length;
+				mod.command.message(`Total fishes: ${statistic.length}`);
+				mod.command.message(`Time per fish: ${(timePerFish/1000).toFixed(2)}s`);
+				break;
 			case 'printdebug':
 				console.log(`Debug log`);
 				console.log(`bankerUsed=${bankerUsed}`);
@@ -1001,6 +1030,7 @@ module.exports = function autoFishing(mod) {
 					}
 				}
 				if (enabled) {
+					statistic = [], startTime = null, endTime = null, lastLevel = null;
 					mod.command.message('autoFishing on. Manually start fishing');
 					getInventory();
 				} else {
