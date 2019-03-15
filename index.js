@@ -407,6 +407,7 @@ module.exports = function autoFishing(mod) {
 		if (event.first) {
 			if (!needToDecompose && !needToSellFishes)
 				invFishes = [];
+			findedFillets=null;
 		}
 		if (!needToDecompose && !needToSellFishes)
 			event.items.forEach(function (obj) {
@@ -576,27 +577,32 @@ module.exports = function autoFishing(mod) {
 					startCraft();
 				}, 500));
 			} else {
-				timeouts.push(
-					setTimeout(() => {
-						if (!noItems) {
-							needToCraft = false;
-							timeouts.push(setTimeout(() => {
-								useBait();
-							}, 500));
-							timeouts.push(setTimeout(() => {
-								useRod();
-							}, rng(5000, 6000)));
-						}
-					}, 500))
+				if (!noItems) {
+					needToCraft = false;
+					timeouts.push(setTimeout(() => {
+						useBait();
+					}, 500));
+					timeouts.push(setTimeout(() => {
+						useRod();
+					}, rng(5000, 6000)));
+				}
+					
 			}
 	})
 
 	function startCraft() {
-		if (enabled && config.recipe > 0)
-			mod.send('C_START_PRODUCE', 1, {
-				recipe: config.recipe,
-				unk: 0
-			});
+		if (enabled && config.recipe > 0){
+			if(findedFillets==null||findedFillets.amount<30){
+				needToDecompose = true;
+				requestDecomposition();
+			}else{
+				mod.send('C_START_PRODUCE', 1, {
+					recipe: config.recipe,
+					unk: 0
+				});
+			}
+		}
+			
 	}
 
 	//endregion
