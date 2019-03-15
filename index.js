@@ -96,7 +96,7 @@ module.exports = function autoFishing(mod) {
 			needToCraft = false;
 			needToDecompose = false;
 			needToDropFilets = false;
-			needToSellFishes = false; //if something fucked
+			needToSellFishes = false;
 			rodId = event.rodId;
 			timeouts.push(
 				setTimeout(() => {
@@ -233,7 +233,7 @@ module.exports = function autoFishing(mod) {
 					unk3: 0,
 					unk4: true
 				});
-			}, 500));
+			}, 250));
 		}
 	}
 
@@ -357,9 +357,15 @@ module.exports = function autoFishing(mod) {
 			timeouts.push(setTimeout(() => { //reduce opcodes
 				endDecompose();
 				needToDecompose = false;
-				setTimeout(() => {
-					useRod();
-				}, rng(5000, 6000));
+				if(needToCraft){
+					timeouts.push(setTimeout(() => {
+						startCraft();
+					}, rng(5000, 6000)));
+				}else{
+					timeouts.push(setTimeout(() => {
+						useRod();
+					}, rng(5000, 6000)));
+				}
 			}, 10000));
 
 		}
@@ -490,9 +496,9 @@ module.exports = function autoFishing(mod) {
 	mod.hook('S_START_COOLTIME_ITEM', 1, event => {
 		if ((ITEMS_BANKER.includes(event.item) || ITEMS_SELLER.includes(event.item)) && event.cooldown > 0 && !scrollsInCooldown) {
 			scrollsInCooldown = true;
-			timeouts.push(setTimeout(() => {
+			setTimeout(() => {
 				scrollsInCooldown = false;
-			}, event.cooldown * 1000));
+			}, event.cooldown * 1000);
 		};
 	});
 
@@ -570,18 +576,20 @@ module.exports = function autoFishing(mod) {
 					startCraft();
 				}, 500));
 			} else {
-				if (!noItems) {
-					needToCraft = false;
-					timeouts.push(setTimeout(() => {
-						useBait();
-					}, 500));
-					timeouts.push(setTimeout(() => {
-						useRod();
-					}, rng(5000, 6000)));
-				}
+				timeouts.push(
+					setTimeout(() => {
+						if (!noItems) {
+							needToCraft = false;
+							timeouts.push(setTimeout(() => {
+								useBait();
+							}, 500));
+							timeouts.push(setTimeout(() => {
+								useRod();
+							}, rng(5000, 6000)));
+						}
+					}, 500))
 			}
-	});
-
+	})
 
 	function startCraft() {
 		if (enabled && config.recipe > 0)
@@ -976,12 +984,12 @@ module.exports = function autoFishing(mod) {
 				var gr = statistic.reduce((acc, val) => {
 					(acc[val['level']] = acc[val['level']] || []).push(val);
 					return acc;
-				},{});
+				}, {});
 				mod.command.message(`Printing stats.`);
 				for (var lv in gr) {
 					mod.command.message(`${lv} level:${gr[lv].length}`);
 				}
-				var timePerFish = statistic.reduce((prev, next) => prev + next.time, 0)/statistic.length;
+				var timePerFish = statistic.reduce((prev, next) => prev + next.time, 0) / statistic.length;
 				mod.command.message(`Total fishes: ${statistic.length}`);
 				mod.command.message(`Time per fish: ${(timePerFish/1000).toFixed(2)}s`);
 				break;
