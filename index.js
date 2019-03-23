@@ -44,7 +44,7 @@ module.exports = function autoFishing(mod) {
 		fishsalad = null,
 		endSellingTimer = null,
 		closestSellerNpc = null,
-		timeouts = [];
+		timeouts = [], idleCheckTimer=null;
 
 	let extendedFunctions = {
 		'banker': {
@@ -124,6 +124,10 @@ module.exports = function autoFishing(mod) {
 					time: endTime.diff(startTime)
 				});
 			startTime = moment();
+			clearTimeout(idleCheckTimer);
+			idleCheckTimer=setTimeout(() => {
+				useRod();
+			}, 300*1000);
 			timeouts.push(setTimeout(() => {
 				useRod();
 			}, rng(5000, 6000)));
@@ -331,7 +335,7 @@ module.exports = function autoFishing(mod) {
 			if (invFishes.length > 0 && decomposeitemscount < 20) {
 				timeouts.push(setTimeout(() => {
 					processDecompositionItem();
-				}, 200));
+				}, rng(200,400)));
 			} else {
 				timeouts.push(setTimeout(() => {
 					if (decomposeitemscount > 0)
@@ -620,7 +624,7 @@ module.exports = function autoFishing(mod) {
 						mod.send('C_NPC_CONTACT', 2, {
 							gameId: currentBanker.gameId
 						})
-					}, 3000));
+					}, rng(3000,5000)));
 				}
 			}
 			if (needToSellFishes && !config.selltonpc && currentSeller == null) {
@@ -630,7 +634,7 @@ module.exports = function autoFishing(mod) {
 						mod.send('C_NPC_CONTACT', 2, {
 							gameId: currentSeller.gameId
 						})
-					}, 3000));
+					}, rng(3000,5000)));
 				}
 			}
 		}
@@ -648,7 +652,7 @@ module.exports = function autoFishing(mod) {
 							questReward: -1,
 							unk: -1
 						})
-					}, 3000));
+					}, rng(3000,4000)));
 				}
 			}
 			if (needToSellFishes) {
@@ -661,7 +665,7 @@ module.exports = function autoFishing(mod) {
 							questReward: -1,
 							unk: -1
 						})
-					}, 3000));
+					}, rng(3000,4000)));
 				}
 			}
 		}
@@ -673,7 +677,7 @@ module.exports = function autoFishing(mod) {
 				sellItemsCount++;
 				timeouts.push(setTimeout(() => {
 					processSellingFishes();
-				}, 200));
+				}, rng(200,300)));
 				if (invFishes.length < 8) {
 					clearTimeout(endSellingTimer);
 					endSellingTimer = setTimeout(() => {
@@ -1038,6 +1042,7 @@ module.exports = function autoFishing(mod) {
 					fishsalad = null,
 					endSellingTimer = null;
 				clearTimeouts();
+				clearTimeout(idleCheckTimer);
 				if (config.selltonpc) {
 					if (closestSellerNpc == null || closestSellerNpc.loc.dist3D(playerLocation.loc) > config.contdist * 25) {
 						mod.command.message('Warning: no seller npc at acceptable range');
