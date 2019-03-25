@@ -564,6 +564,7 @@ module.exports = function autoFishing(mod) {
 			clearTimeout(timeouts[i]);
 			delete timeouts[i];
 		}
+		clearTimeout(idleCheckTimer);
 	}
 	this.destructor = () => {
 		clearTimeouts();
@@ -1042,7 +1043,6 @@ module.exports = function autoFishing(mod) {
 					fishsalad = null,
 					endSellingTimer = null;
 				clearTimeouts();
-				clearTimeout(idleCheckTimer);
 				if (config.selltonpc) {
 					if (closestSellerNpc == null || closestSellerNpc.loc.dist3D(playerLocation.loc) > config.contdist * 25) {
 						mod.command.message('Warning: no seller npc at acceptable range');
