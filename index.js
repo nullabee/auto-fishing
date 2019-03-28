@@ -15,6 +15,17 @@ const ITEMS_FISHES = [
 	206431, 206432, 206433, 206434, 206435, //tier 10
 	206500, 206501, 206502, 206503, 206504, 206505 //baf
 ];
+const ABN_BAITS=[
+	70271,//206000,//0%
+	70272,//206001,//20%
+	70273,//206002,//40%
+	70274,//206003,//60%
+	70275,//206004,//80%
+	70360,//206900,//80%+30%
+	70365,//206905,//80%+5%
+	70364,//206904,//80%+10%
+	70361,//206901,//80%+25%
+];
 const ITEMS_BANKER = [60264, 160326, 170003, 210111, 216754];
 const ITEMS_SELLER = [160324, 170004, 210109, 60262, 60263, 160325, 170006, 210110];
 module.exports = function autoFishing(mod) {
@@ -203,10 +214,12 @@ module.exports = function autoFishing(mod) {
 		}
 	});
 
-	function useRod() {
+		function useRod() {
 		if (enabled && rodId != null) {
+			let addDelay=10;
 			if (config.autosalad && fishsalad != null && abnormalityDuration(70261) <= 0 && fishsalad.amount > 0) {
 				fishsalad.amount -= 1;
+				addDelay+=1000;
 				mod.toServer('C_USE_ITEM', 3, {
 					gameId: mod.game.me.gameId,
 					id: fishsalad.id,
@@ -221,6 +234,13 @@ module.exports = function autoFishing(mod) {
 					unk3: 0,
 					unk4: true
 				});
+			}
+			if(ABN_BAITS.every((el)=>{ return abnormalityDuration(el)<=0;})){
+				timeouts.push(setTimeout(() => {
+					needToCraft = true;
+					startCraft();
+				},addDelay));
+				return;
 			}
 			timeouts.push(setTimeout(() => {
 				mod.toServer('C_USE_ITEM', 3, {
@@ -237,10 +257,9 @@ module.exports = function autoFishing(mod) {
 					unk3: 0,
 					unk4: true
 				});
-			}, 250));
+			}, addDelay));
 		}
 	}
-
 	function useBait() {
 		if (enabled && config.bait > 0)
 			mod.toServer('C_USE_ITEM', 3, {
