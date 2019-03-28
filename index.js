@@ -401,7 +401,7 @@ module.exports = function autoFishing(mod) {
 	//endregion
 
 	//region Inv part
-	mod.hook('S_INVEN', 17, {
+	mod.hook('S_INVEN', mod.majorPatchVersion < 80 ? 17 : 18, {
 		order: -1000,
 		filter: {
 			fake: null

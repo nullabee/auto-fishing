@@ -1,6 +1,6 @@
 {
     "files": {
-        "index.js": "ee73c63d600ec4d87cea12454d23fbf4e8bb2465c5d9acda7403bf3e7be8cf3d",
+        "index.js": "786087d6f4069e8e380d36795dcf9460c59c86e05fccaa727b8c2bd873587767",
         "module.json": "c12709972bc6bf77c8b652dfe551bd0e48939dc57d097b4fef8a05b8797cee92"
     },
     "defs": {
@@ -29,7 +29,7 @@
         "S_FISHING_BITE": 1,
         "S_FISHING_CATCH": 1,
         "S_FISHING_CATCH_FAIL": 1,
-        "S_INVEN": 17,
+        "S_INVEN": [17,18],
         "S_LOAD_TOPO": 3,
         "S_PCBANGINVENTORY_DATALIST": 1,
         "S_REQUEST_CONTRACT": 1,
