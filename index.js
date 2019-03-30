@@ -373,7 +373,7 @@ module.exports = function autoFishing(mod) {
 						if (request.fishes.length < 8) {
 							mod.clearTimeout(endSellingTimer);
 							endSellingTimer = mod.setTimeout(() => {
-								endSelling();
+								cancelContract(9, request.seller.contractId);
 							}, 10000);
 						}
 					} else {
@@ -383,7 +383,7 @@ module.exports = function autoFishing(mod) {
 							else {
 								mod.clearTimeout(endSellingTimer);
 								endSellingTimer = mod.setTimeout(() => {
-									endSelling();
+									cancelContract(9, request.seller.contractId);
 								}, 1000);
 							}
 						}, 300);
@@ -546,6 +546,7 @@ module.exports = function autoFishing(mod) {
 								npc.reduce((result, obj) => {
 									if (obj.distance < result.distance)
 										result = obj;
+										return result;
 								}, {});
 								if (npc.length === 0 || npc[0].distance > config.contdist * 25) {
 									mod.command.message('ERROR: No seller npc found at the acceptable range.');
@@ -1038,6 +1039,7 @@ module.exports = function autoFishing(mod) {
 				npc.reduce((result, obj) => {
 					if (obj.distance < result.distance)
 						result = obj;
+						return result;
 				}, {});
 
 				if (npc.length === 0 || npc[0].distance > config.contdist * 25) {
@@ -1088,6 +1090,7 @@ module.exports = function autoFishing(mod) {
 						npc.reduce((result, obj) => {
 							if (obj.distance < result.distance)
 								result = obj;
+								return result;
 						}, {});
 
 						if (npc.length === 0 || npc[0].distance > config.contdist * 25) {
