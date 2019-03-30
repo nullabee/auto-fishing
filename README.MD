@@ -17,7 +17,7 @@ You can edit delays settings from notepad, make fish save once for new options a
 | fish blacklist remove link | remove item from blacklist |  link from inventory |
 | fish blacklist reset | reset blacklist |   |
 | fish setrecipe | to set last used recipe for crafting  | enable mod before crafting  |
-| fish save | to save settings  | Config file generates per character. Old config.json become default if exist |
+| fish save | to save settings  | Config file generates per character. |
 | fish reloadconf | to reload settings file |  |
 | fish filetmode bank value | Set value to bank fish files after filling inventory | value range is 500-10000. You need banker scroll in vip panel or inventory |
 | fish filetmode | disable any interactions with fillets  |   |
