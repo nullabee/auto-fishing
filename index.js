@@ -583,7 +583,7 @@ module.exports = function autoFishing(mod) {
 									action = 'wait';
 								} else {
 									if (pcbangBanker == null) {
-										let scroll = mod.game.inventory.findInBag(FILET_ID);
+										let scroll = mod.game.inventory.findInBag(ITEMS_BANKER);
 										if (scroll === undefined) {
 											mod.command.message(`ERROR: Cant find any banker scroll`);
 											console.log(`auto-fishing(${mod.game.me.name})|ERROR: Cant find any banker scroll`);
@@ -1074,28 +1074,31 @@ module.exports = function autoFishing(mod) {
 				mod.command.message(`Time per fish: ${(timePerFish/1000).toFixed(2)}s`);
 				break;
 			default:
-				mod.clearAllTimeouts();
-				if (config.filetmode == 'selltonpc') {
-					let npc = Object.values(npcList)
-						.filter(x => TEMPLATE_SELLER.includes(x.templateId));
-					npc.forEach(function (obj, index, theArray) {
-						obj.distance = obj.loc.dist3D(playerLocation.loc);
-						theArray[index] = obj;
-					});
-					npc.reduce((result, obj) => {
-						if (obj.distance < result.distance)
-							result = obj;
-					}, {});
+				if (key !== undefined) {
+					mod.command.message('Incorrect command');
+				} else {
+					mod.clearAllTimeouts();
+					if (config.filetmode == 'selltonpc') {
+						let npc = Object.values(npcList)
+							.filter(x => TEMPLATE_SELLER.includes(x.templateId));
+						npc.forEach(function (obj, index, theArray) {
+							obj.distance = obj.loc.dist3D(playerLocation.loc);
+							theArray[index] = obj;
+						});
+						npc.reduce((result, obj) => {
+							if (obj.distance < result.distance)
+								result = obj;
+						}, {});
 
-					if (npc.length === 0 || npc[0].distance > config.contdist * 25) {
-						mod.command.message('Warning: no seller npc at acceptable range');
+						if (npc.length === 0 || npc[0].distance > config.contdist * 25) {
+							mod.command.message('Warning: no seller npc at acceptable range');
+						}
+					}
+					toggleHooks();
+					if (enabled) {
+						statistic = [], startTime = null, endTime = null, lastLevel = null;
 					}
 				}
-				toggleHooks();
-				if (enabled) {
-					statistic = [], startTime = null, endTime = null, lastLevel = null;
-				}
-
 				break;
 		}
 	});
