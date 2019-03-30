@@ -653,7 +653,7 @@ module.exports = function autoFishing(mod) {
 				}
 			case "craft":
 				{
-					if (config.recipe <= 0) {
+					if (config.recipe===undefined) {
 						mod.command.message(`ERROR: No crafting recipe found `);
 						console.log(`auto-fishing(${mod.game.me.name})|ERROR: No crafting recipe found`);
 						action = 'aborted';
