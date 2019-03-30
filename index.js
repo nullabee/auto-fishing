@@ -484,7 +484,7 @@ module.exports = function autoFishing(mod) {
 				action = "usesalad";
 		}
 		if (bait === undefined) {
-			if (filets.amount < 60) {
+			if (filets===undefined||filets.amount < 60) {
 				action = "dismantle";
 			} else {
 				action = "craft";
@@ -496,13 +496,13 @@ module.exports = function autoFishing(mod) {
 				action = "usebait";
 		}
 		if (mod.game.inventory.bagSize - mod.game.inventory.bag.length <= 3) {
-			if (filets.amount < 60)
+			if (filets===undefined||filets.amount < 60)
 				action = "dismantle";
 			else
 				action = "fullinven";
 
 		}
-		if (filets.amount >= 9000) {
+		if (filets!==undefined&&filets.amount >= 9000) {
 			action = "toomanyfilets"
 		}
 		//check
