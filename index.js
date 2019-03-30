@@ -233,7 +233,9 @@ module.exports = function autoFishing(mod) {
 					time: endTime.diff(startTime)
 				});
 			startTime = moment();
-			makeDecision();
+			mod.setTimeout(() => {
+				makeDecision();
+			}, rng(config.time.decision));	
 		}
 	}
 
@@ -916,6 +918,11 @@ module.exports = function autoFishing(mod) {
 			config.time.dismantle = {};
 			config.time.dismantle.min = 200;
 			config.time.dismantle.max = 400;
+		}
+		if (config.time.decision === undefined) {
+			config.time.decision = {};
+			config.time.decision.min = 500;
+			config.time.decision.max = 700;
 		}
 		if (config.bankAmount <= 0)
 			config.bankAmount = 8000;
