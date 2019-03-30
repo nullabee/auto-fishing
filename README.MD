@@ -4,7 +4,7 @@ Tera proxy mod for fishing.<br>
 Move defs to node_modules\tera-data\protocol.<br>
 Move\merge protocol files to node_modules\tera-data\map in Caali proxy.<br>
 #### Commands
-You can edit delays settings from notepad.
+You can edit delays settings from notepad, make fish save once for new options appear.
 
 | Command  | Description | Hint
 | ------------- | ------------- | ------------- |
