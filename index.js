@@ -148,7 +148,7 @@ module.exports = function autoFishing(mod) {
 			switch (request.action) {
 				case 'usesalad':
 					{
-						if (ITEMS_SALAD.includes(event.id))
+						if (event.id==70261)
 							mod.setTimeout(() => {
 								makeDecision();
 							}, config.time.bait);
