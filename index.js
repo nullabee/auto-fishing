@@ -476,7 +476,7 @@ module.exports = function autoFishing(mod) {
 		let action = "userod";
 		request = {};
 		let filets = mod.game.inventory.findInBag(204052);
-		let fishes = mod.game.inventory.findAllInBag(flatSingle(ITEMS_FISHES).filter(f => !config.blacklist.includes(f.id)));
+		let fishes = mod.game.inventory.findAllInBag(flatSingle(ITEMS_FISHES)).filter(f => !config.blacklist.includes(f.id));
 		let bait = mod.game.inventory.findInBag(Object.values(BAITS));
 		let salad = mod.game.inventory.findInBag([206020, 206040]);
 		if (config.autosalad) {
