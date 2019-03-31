@@ -575,9 +575,15 @@ module.exports = function autoFishing(mod) {
 							}
 						default:
 							{
-								action = 'dismantle';
-								request = {
-									fishes: fishes.slice(0, 20)
+								if (fishes.length === 0) {
+									mod.command.message(`ERROR: Can't find any fishes for dismantle`);
+									console.log(`auto-fishing(${mod.game.me.name})|ERROR: Can't find any fishes for dismantle`);
+									action = 'aborted';
+								} else {
+									action = 'dismantle';
+									request = {
+										fishes: fishes.slice(0, 20)
+									}
 								}
 								break;
 							}
