@@ -1,2 +1,2 @@
 uint64 gameId
-int32 npc
+int32 contract
