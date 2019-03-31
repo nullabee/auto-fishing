@@ -39,3 +39,10 @@ You can edit the delays in the YourName-ServerID.json file via notepad once you 
 
 - If you need to log them yourself use this module for logging specific packets [Packet ID Finder](https://github.com/Owyn/alex-packet-id-finder).
 - If you need to log them yourself use this module for logging all client or server packets [Packets Logger](https://github.com/SoliaRdi/PacketsLogger).
+
+---
+
+## Changes With The Latest Big Update
+- This module will only work on Caali's Tera Proxy from now.
+- There is no need to use the setbait command since they get autodetected now.
+- If you want to farm filet you need to use `/8 fish filetmode bank` since there is no drop option anymore.
