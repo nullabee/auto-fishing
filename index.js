@@ -80,12 +80,15 @@ module.exports = function autoFishing(mod) {
 	let config, settingsPath;
 	if (mod.proxyAuthor !== 'caali' || !global.TeraProxy)
 		mod.warn('You are trying to use auto-fishing on an unsupported version of tera-proxy.');
-	try{
-		let commit=mod.dispatch.protocol.messages.get('C_STORE_COMMIT');
-		if(commit.get(1)[1][0]=='npc'){
-			mod.dispatch.protocol.messages.set('C_STORE_COMMIT',new Map().set(1,[['gameId', 'uint64'],['contract', 'int32']]));
+	try {
+		let commit = mod.dispatch.protocol.messages.get('C_STORE_COMMIT');
+		if (commit.get(1)[1][0] == 'npc') {
+			mod.dispatch.protocol.messages.set('C_STORE_COMMIT', new Map().set(1, [
+				['gameId', 'uint64'],
+				['contract', 'int32']
+			]));
 		}
-	}catch(e){}
+	} catch (e) {}
 	mod.game.initialize(['inventory']);
 	mod.game.on('enter_game', () => {
 		try {
@@ -155,7 +158,7 @@ module.exports = function autoFishing(mod) {
 			switch (request.action) {
 				case 'usesalad':
 					{
-						if (event.id==70261)
+						if (event.id == 70261)
 							mod.setTimeout(() => {
 								makeDecision();
 							}, config.time.bait);
@@ -242,7 +245,7 @@ module.exports = function autoFishing(mod) {
 			startTime = moment();
 			mod.setTimeout(() => {
 				makeDecision();
-			}, rng(config.time.decision));	
+			}, rng(config.time.decision));
 		}
 	}
 
@@ -493,7 +496,7 @@ module.exports = function autoFishing(mod) {
 				action = "usesalad";
 		}
 		if (bait === undefined) {
-			if (filets===undefined||filets.amount < 60) {
+			if (filets === undefined || filets.amount < 60) {
 				action = "dismantle";
 			} else {
 				action = "craft";
@@ -505,15 +508,15 @@ module.exports = function autoFishing(mod) {
 				action = "usebait";
 		}
 		if (mod.game.inventory.bagSize - mod.game.inventory.bag.length <= 3) {
-			if (filets===undefined||filets.amount < 60)
+			if (filets === undefined || filets.amount < 60)
 				action = "dismantle";
 			else
 				action = "fullinven";
 
 		}
-		if (filets!==undefined&&filets.amount >= 9000&&
-			config.filetmode!='sellscroll'&&
-			config.filetmode!='selltonpc') {
+		if (filets !== undefined && filets.amount >= 9000 &&
+			config.filetmode != 'sellscroll' &&
+			config.filetmode != 'selltonpc') {
 			action = "toomanyfilets"
 		}
 		//check
@@ -548,17 +551,16 @@ module.exports = function autoFishing(mod) {
 							}
 						case 'selltonpc':
 							{
-								let npc = Object.values(npcList)
+								let npc = Object.values(Object.assign({}, npcList))
 									.filter(x => TEMPLATE_SELLER.includes(x.templateId));
 								npc.forEach(function (obj, index, theArray) {
 									obj.distance = obj.loc.dist3D(playerLocation.loc);
 									theArray[index] = obj;
 								});
 								npc.reduce((result, obj) => {
-									if (obj.distance < result.distance)
-										result = obj;
-										return result;
-								}, {});
+									result[0] = (result[0] === undefined || obj.distance < result[0].distance) ? obj : result[0];
+									return result;
+								}, []);
 								if (npc.length === 0 || npc[0].distance > config.contdist * 25) {
 									mod.command.message('ERROR: No seller npc found at the acceptable range.');
 									console.log(`auto-fishing(${mod.game.me.name})|ERROR: No seller npc found at the acceptable range.`);
@@ -662,7 +664,7 @@ module.exports = function autoFishing(mod) {
 				}
 			case "craft":
 				{
-					if (config.recipe===undefined) {
+					if (config.recipe === undefined) {
 						mod.command.message(`ERROR: No crafting recipe found `);
 						console.log(`auto-fishing(${mod.game.me.name})|ERROR: No crafting recipe found`);
 						action = 'aborted';
@@ -1046,17 +1048,16 @@ module.exports = function autoFishing(mod) {
 					config.contdist = dist;
 					mod.command.message(`Distance for NPC contact set to: ${dist}m`);
 				}
-				let npc = Object.values(npcList)
+				let npc = Object.values(Object.assign({}, npcList))
 					.filter(x => TEMPLATE_SELLER.includes(x.templateId));
 				npc.forEach(function (obj, index, theArray) {
 					obj.distance = obj.loc.dist3D(playerLocation.loc);
 					theArray[index] = obj;
 				});
 				npc.reduce((result, obj) => {
-					if (obj.distance < result.distance)
-						result = obj;
-						return result;
-				}, {});
+					result[0] = (result[0] === undefined || obj.distance < result[0].distance) ? obj : result[0];
+					return result;
+				}, []);
 
 				if (npc.length === 0 || npc[0].distance > config.contdist * 25) {
 					mod.command.message('Warning: no seller npc at acceptable range');
@@ -1096,17 +1097,16 @@ module.exports = function autoFishing(mod) {
 					mod.command.message('Incorrect command');
 				} else {
 					if (config.filetmode == 'selltonpc') {
-						let npc = Object.values(npcList)
+						let npc = Object.values(Object.assign({}, npcList))
 							.filter(x => TEMPLATE_SELLER.includes(x.templateId));
 						npc.forEach(function (obj, index, theArray) {
 							obj.distance = obj.loc.dist3D(playerLocation.loc);
 							theArray[index] = obj;
 						});
 						npc.reduce((result, obj) => {
-							if (obj.distance < result.distance)
-								result = obj;
-								return result;
-						}, {});
+							result[0] = (result[0] === undefined || obj.distance < result[0].distance) ? obj : result[0];
+							return result;
+						}, []);
 
 						if (npc.length === 0 || npc[0].distance > config.contdist * 25) {
 							mod.command.message('Warning: no seller npc at acceptable range');
