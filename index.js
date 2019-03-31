@@ -110,6 +110,7 @@ module.exports = function autoFishing(mod) {
 
 	function toggleHooks() {
 		enabled = !enabled;
+		mod.clearAllTimeouts();
 		if (enabled) {
 			mod.command.message('Auto fishing activated. Manually start fishing now.');
 		} else {
@@ -1086,7 +1087,6 @@ module.exports = function autoFishing(mod) {
 				if (key !== undefined) {
 					mod.command.message('Incorrect command');
 				} else {
-					mod.clearAllTimeouts();
 					if (config.filetmode == 'selltonpc') {
 						let npc = Object.values(npcList)
 							.filter(x => TEMPLATE_SELLER.includes(x.templateId));
