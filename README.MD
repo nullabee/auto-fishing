@@ -1,28 +1,41 @@
-#### About
-Tera proxy mod for fishing.<br>
-#### Installation&updates
-Move defs to node_modules\tera-data\protocol.<br>
-Move\merge protocol files to node_modules\tera-data\map in Caali proxy.<br>
-#### Commands
-You can edit delays settings from notepad, make fish save once for new options appear.
+## Tera proxy module for auto fishing.
 
-| Command  | Description | Hint
+---
+
+## First Time Installation & Updating Opcodes
+- Move the files inside the defs folder into Your-Proxy-Folder/node_modules/tera-data/protocol.
+- Move and merge the protocol files into Your-Proxy-Folder/node_modules/tera-data/map.
+- An mapping overview for your region can be found here [Mapping Overview](https://github.com/caali-hackerman/tera-data/blob/master/mappings.json).
+
+---
+
+## Commands
+You can edit the delays in the YourName-ServerID.json file via notepad once you enter `/8 fish save`.
+
+| Command  | Description | Additional Information
 | ------------- | ------------- | ------------- |
-| fish | to enable mod  |  |
-| fish stats| print current fishing statistic  |  |
-| fish sellscroll | Sell fishes when inv full | You need traveling merchant scroll in inventory and additional opcodes&defs |
-| fish selltonpc `range` | Option for `fish sellfishes` | Sell to Fishing Supplie. `range` is distance in meters for npc contact, default is 6m.|
-| fish autosalad | to enable auto using fish salad  |  |
-| fish blacklist add link | add item to blacklist for auto decompose or selling | link from inventory. Blacklist means, that you don't want this fishes be dismantled or sold |
-| fish blacklist remove link | remove item from blacklist |  link from inventory |
-| fish blacklist reset | reset blacklist |   |
-| fish setrecipe | to set last used recipe for crafting  | enable mod before crafting  |
-| fish save | to save settings  | Config file generates per character. |
-| fish reloadconf | to reload settings file |  |
-| fish filetmode bank value | Set value to bank fish files after filling inventory | value range is 500-10000. You need banker scroll in vip panel or inventory |
-| fish filetmode | disable any interactions with fillets  |   |
-| fish debug | debug mode  |   |
+| /8 fish | To enable the module. | Needs to be used before setrecipe command. |
+| /8 fish blacklist add `link` | Add the desired item to the blacklist for auto decompose or selling | Blacklist means, that you don't want this fishes to be dismantled or sold. |
+| /8 fish blacklist remove `link` | Remove the desired item from the blacklist. | How to link is described in the note section. |
+| /8 fish blacklist reset | Reset your current blacklist. | In case you want to remove everything. |
+| /8 fish setrecipe | The last used recipe will be used for auto crafting. |  |
+| /8 fish selltonpc `range` | Sell fishes when your inventory is full to fishing merchant. | Maximum range between you and the npc is 6 meters. |
+| /8 fish filetmode bank `value` | Set the value to bank fish filets after filling your inventory. | Value range is 500 - 10000. You need at least one banker scroll in vip panel or inventory. |
+| /8 fish filetmode | Disable any interactions with filets. | Useful for switching different modes. |
+| /8 fish sellscroll | Sell fishes when your inventory is full. | You need traveling merchant scroll in your inventory and additional opcodes & defs. |
+| /8 fish autosalad | To enable auto using of fish salad. | Both craftable and event salad gets auto detected. |
+| /8 fish reloadconf | To reload your current configuration file. | In case you are editing something manually and you are still ingame. |
+| /8 fish save | To save your entered settings.  | Config file gets generates per character. |
+| /8 fish stats| Print current fishing statistic. | Fish level, total fishes and time per fish. |
+| /8 fish debug | Debug mode of the modules current function. | Shows you decision that bot takes. |
 
+---
 
-You can manually edit config file<br>
-Repo will contains opcodes only for RU, unless someone send me them for other regions. Use [Find packet id](https://github.com/Owyn/alex-packet-id-finder) / [PacketsLogger](https://github.com/SoliaRdi/PacketsLogger)<br>
+## Note
+- To add an item link into the chat just press ctrl and left mouse onto the desired item.
+- This repo will only contain the opcodes for the Ru and Eu version, unless someone send them to me for other regions.
+
+---
+
+- If you need to log them yourself use this module for logging specific packets [Packet ID Finder](https://github.com/Owyn/alex-packet-id-finder).
+- If you need to log them yourself use this module for logging all client or server packets [Packets Logger](https://github.com/SoliaRdi/PacketsLogger).
