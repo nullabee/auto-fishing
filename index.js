@@ -505,7 +505,9 @@ module.exports = function autoFishing(mod) {
 				action = "fullinven";
 
 		}
-		if (filets!==undefined&&filets.amount >= 9000) {
+		if (filets!==undefined&&filets.amount >= 9000&&
+			config.filetmode!='sellscroll'&&
+			config.filetmode!='selltonpc') {
 			action = "toomanyfilets"
 		}
 		//check
