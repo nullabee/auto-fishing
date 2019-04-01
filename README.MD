@@ -43,6 +43,7 @@ You can edit the delays in the YourName-ServerID.json file via notepad once you 
 ---
 
 ## Changes With The Latest Big Update
-- This module will only work on Caali's Tera Proxy from now.
+- From now on this module will only work on Caali's Tera Proxy.
+- The bot is crafting baits once (10 baits) instead of the max. amount.
 - There is no need to use the setbait command since they get autodetected now.
 - If you want to farm filet you need to use `/8 fish filetmode bank` since there is no drop option anymore.
