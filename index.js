@@ -595,6 +595,7 @@ module.exports = function autoFishing(mod) {
 					switch (config.filetmode) {
 						case 'bank':
 							{
+								action='bank';
 								if (scrollsInCooldown) {
 									console.log("Scroll in cooldown retry in 1 min");
 									mod.setTimeout(() => {
