@@ -421,7 +421,7 @@ module.exports = function autoFishing(mod) {
 		delete npcList[event.gameId];
 	})
 	mod.hook('S_SPAWN_USER', 14, event => {
-		if (event.gm)
+		if (event.gm&&enabled)
 			switch (config.gmmode) {
 				case 'exit':
 					{
