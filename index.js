@@ -420,7 +420,41 @@ module.exports = function autoFishing(mod) {
 	mod.hook('S_DESPAWN_NPC', 3, event => {
 		delete npcList[event.gameId];
 	})
-
+	mod.hook('S_SPAWN_USER', 14, event => {
+		if (event.gm)
+			switch (config.gmmode) {
+				case 'exit':
+					{
+						console.log(`auto-fishing(${mod.game.me.name})|ERROR: GM is near you, exit game xD`);
+						toggleHooks();
+						mod.toClient('S_EXIT', 3, {
+							category: 0,
+							code: 0
+						});
+						break;
+					}
+				case 'lobby':
+					{
+						console.log(`auto-fishing(${mod.game.me.name})|ERROR: GM is near you, return to lobby`);
+						toggleHooks();
+						mod.toServer('C_RETURN_TO_LOBBY', 1, {});
+						break;
+					}
+				case 'stop':
+					{
+						mod.command.message(`ERROR: GM is near you, fishing stoped`);
+						console.log(`auto-fishing(${mod.game.me.name})|ERROR: GM is near you, fishing stoped`);
+						toggleHooks();
+						break
+					}
+				default:
+					{
+						mod.command.message(`Warning: GM is near you.`);
+						console.log(`auto-fishing(${mod.game.me.name})|Warning: GM is near you.`);
+						break
+					}
+			}
+	})
 	mod.hook('S_PCBANGINVENTORY_DATALIST', 1, event => {
 		for (let item of event.inventory) {
 			if (ITEMS_BANKER.includes(item.item)) {
@@ -595,7 +629,7 @@ module.exports = function autoFishing(mod) {
 					switch (config.filetmode) {
 						case 'bank':
 							{
-								action='bank';
+								action = 'bank';
 								if (scrollsInCooldown) {
 									console.log("Scroll in cooldown retry in 1 min");
 									mod.setTimeout(() => {
@@ -948,6 +982,8 @@ module.exports = function autoFishing(mod) {
 			config.contdist = 6;
 		if (config.blacklist === undefined)
 			config.blacklist = [];
+		if (config.gmmode === undefined)
+			config.gmmode = 'stop';
 	}
 
 	function rng(f, s) {
@@ -1073,6 +1109,10 @@ module.exports = function autoFishing(mod) {
 			case 'autosalad':
 				config.autosalad = !config.autosalad;
 				mod.command.message('Auto use of fish salad is now ' + (config.autosalad ? 'en' : 'dis') + 'abled.');
+				break;
+			case 'gmmode':
+				config.gmmode = arg;
+				mod.command.message(`Gm detected mode has been set to ${config.gmmode}`);
 				break;
 			case 'save':
 				mod.command.message('Configuration has been saved.');
