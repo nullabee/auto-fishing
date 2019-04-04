@@ -15,8 +15,8 @@ You can edit the delays in the YourName-ServerID.json file via notepad once you 
 | Command  | Description | Additional Information
 | ------------- | ------------- | ------------- |
 | /8 fish | To enable the module. |  |
-| /8 gmmode `mode`| Action that we take when GM spawn detected | Mode can be exit,lobby, stop or nothing. Default - stop |
-| /8 fish blacklist add `link` | Add the desired item to the blacklist for auto decompose or selling | Blacklist means, that you don't want this fishes to be dismantled or sold. |
+| /8 fish gmmode `mode` | Action that we take if an gm spawns near us. | Mode can be exit, lobby, stop or nothing. Default is stop. |
+| /8 fish blacklist add `link` | Add the desired item to the blacklist for auto decompose or selling. | Blacklist means, that you don't want this fishes to be dismantled or sold. |
 | /8 fish blacklist remove `link` | Remove the desired item from the blacklist. | How to link is described in the note section. |
 | /8 fish blacklist reset | Reset your current blacklist. | In case you want to remove everything. |
 | /8 fish setrecipe | The last used recipe will be used for auto crafting. |  |
@@ -43,8 +43,13 @@ You can edit the delays in the YourName-ServerID.json file via notepad once you 
 
 ---
 
-## Changes With The Latest Big Update
-- From now on this module will only work on Caali's Tera Proxy.
-- The bot is crafting baits once (10 baits) instead of the max. amount.
+## Important Changes With The Latest Big Update
+<details>
+<summary>Changelog</summary>
+- From now on this module will only work on Caali's Tera Proxy. Please don't ask for help in his discord tho.
+<br>
+- If you want to farm filet you need to use /8 fish filetmode bank since there is no drop option anymore.
+<br>
+- The bot is crafting baits once instead of the max. amount. One time crafting equals 10 baits.
+<br>
 - There is no need to use the setbait command since they get autodetected now.
-- If you want to farm filet you need to use `/8 fish filetmode bank` since there is no drop option anymore.
