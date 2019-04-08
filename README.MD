@@ -16,6 +16,7 @@ You can edit the delays in the YourName-ServerID.json file via notepad once you 
 | ------------- | ------------- | ------------- |
 | /8 fish | To enable the module. |  |
 | /8 fish gmmode `mode` | Action that we take if an gm spawns near us. | Mode can be exit, lobby, stop or nothing. Default is stop. |
+| /8 fish skipbaf | Skips BAF | |
 | /8 fish blacklist add `link` | Add the desired item to the blacklist for auto decompose or selling. | Blacklist means, that you don't want this fishes to be dismantled or sold. |
 | /8 fish blacklist remove `link` | Remove the desired item from the blacklist. | How to link is described in the note section. |
 | /8 fish blacklist reset | Reset your current blacklist. | In case you want to remove everything. |
