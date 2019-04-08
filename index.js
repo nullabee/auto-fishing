@@ -233,8 +233,8 @@ module.exports = function autoFishing(mod) {
 					});
 					mod.setTimeout(() => {
 						makeDecision();
-					}, rng(config.time.decision));
-				}, rng(config.time.minigame));
+					}, rng(config.time.rod));
+				}, rng(8000,10000));
 
 			} else {
 				mod.setTimeout(() => {
