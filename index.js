@@ -226,11 +226,23 @@ module.exports = function autoFishing(mod) {
 	function sStartFishingMinigame(event) {
 		if (mod.game.me.is(event.gameId)) {
 			lastLevel = event.level;
-			mod.setTimeout(() => {
-				mod.send('C_END_FISHING_MINIGAME', 1, {
-					success: true
-				});
-			}, rng(config.time.minigame));
+			if (config.skipbaf && event.level == 11) {
+				mod.setTimeout(() => {
+					mod.send('C_END_FISHING_MINIGAME', 1, {
+						success: false
+					});
+					mod.setTimeout(() => {
+						makeDecision();
+					}, rng(config.time.decision));
+				}, rng(config.time.minigame));
+
+			} else {
+				mod.setTimeout(() => {
+					mod.send('C_END_FISHING_MINIGAME', 1, {
+						success: true
+					});
+				}, rng(config.time.minigame));
+			}
 		}
 	}
 
@@ -421,7 +433,7 @@ module.exports = function autoFishing(mod) {
 		delete npcList[event.gameId];
 	})
 	mod.hook('S_SPAWN_USER', 14, event => {
-		if (event.gm&&enabled)
+		if (event.gm && enabled)
 			switch (config.gmmode) {
 				case 'exit':
 					{
@@ -1113,6 +1125,10 @@ module.exports = function autoFishing(mod) {
 			case 'gmmode':
 				config.gmmode = arg;
 				mod.command.message(`Gm detected mode has been set to ${config.gmmode}`);
+				break;
+			case 'skipbaf':
+				config.skipbaf = !config.skipbaf;
+				mod.command.message('Skip BAF mode has been ' + (config.skipbaf ? 'en' : 'dis') + 'abled.');
 				break;
 			case 'save':
 				mod.command.message('Configuration has been saved.');
