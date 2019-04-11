@@ -283,7 +283,9 @@ module.exports = function autoFishing(mod) {
 								cancelContract(9, request.seller.contractId);
 							}, 5000);
 						} else {
-							sellFish();
+							mod.setTimeout(() => {
+								sellFish();
+							}, rng(config.time.sell));
 						}
 					}
 					break;
