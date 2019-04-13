@@ -40,6 +40,7 @@ module.exports = function autoFishing(mod) {
 		70283: 206007, //worm
 		70284: 206008, //worm
 		70285: 206009, //worm
+		70362: 206902, //worm 80%+20%
 		70286: 206828, //Celisium Fragment Bait
 	};
 	const ITEMS_BANKER = [60264, 160326, 170003, 210111, 216754];
