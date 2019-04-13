@@ -227,7 +227,7 @@ module.exports = function autoFishing(mod) {
 	function sStartFishingMinigame(event) {
 		if (mod.game.me.is(event.gameId)) {
 			lastLevel = event.level;
-			if (config.skipbaf && event.level == 11 || (abnormalityDuration(70261) > 0 && event.level == 7)) {
+			if (config.skipbaf && (event.level == 11 || (abnormalityDuration(70261) > 0 && event.level == 7))) {
 				mod.setTimeout(() => {
 					mod.send('C_END_FISHING_MINIGAME', 1, {
 						success: false
