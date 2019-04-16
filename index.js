@@ -600,17 +600,8 @@ module.exports = function autoFishing(mod) {
 							}
 						case 'selltonpc':
 							{
-								let npc = Object.values(Object.assign({}, npcList))
-									.filter(x => TEMPLATE_SELLER.includes(x.templateId));
-								npc.forEach(function (obj, index, theArray) {
-									obj.distance = obj.loc.dist3D(playerLocation.loc);
-									theArray[index] = obj;
-								});
-								npc.reduce((result, obj) => {
-									result[0] = (result[0] === undefined || obj.distance < result[0].distance) ? obj : result[0];
-									return result;
-								}, []);
-								if (npc.length === 0 || npc[0].distance > config.contdist * 25) {
+								let npc = findClosestNpc();
+								if (npc===undefined||npc.distance===undefined|| npc.distance > config.contdist * 25) {
 									mod.command.message('ERROR: No seller npc found at the acceptable range.');
 									console.log(`auto-fishing(${mod.game.me.name})|ERROR: No seller npc found at the acceptable range.`);
 									action = 'aborted';
@@ -933,7 +924,14 @@ module.exports = function autoFishing(mod) {
 		if (id) return parseInt(id[1])
 		else return null;
 	}
-
+	function findClosestNpc() {
+		let npc = Object.values(npcList).filter(x => TEMPLATE_SELLER.includes(x.templateId));
+		for(let i=npc.length;i-->0;npc[i].distance=npc[i].loc.dist3D(playerLocation.loc));
+		npc=npc.reduce((result, obj) => {
+			return (!(obj.distance > result.distance)) ? obj : result;
+		}, {});
+		return npc;
+	}
 	function getConfigData(pathToFile) {
 		try {
 			config = JSON.parse(fs.readFileSync(path.join(__dirname, pathToFile)));
@@ -1106,18 +1104,8 @@ module.exports = function autoFishing(mod) {
 					config.contdist = dist;
 					mod.command.message(`Distance for NPC contact set to: ${dist}m`);
 				}
-				let npc = Object.values(Object.assign({}, npcList))
-					.filter(x => TEMPLATE_SELLER.includes(x.templateId));
-				npc.forEach(function (obj, index, theArray) {
-					obj.distance = obj.loc.dist3D(playerLocation.loc);
-					theArray[index] = obj;
-				});
-				npc.reduce((result, obj) => {
-					result[0] = (result[0] === undefined || obj.distance < result[0].distance) ? obj : result[0];
-					return result;
-				}, []);
-
-				if (npc.length === 0 || npc[0].distance > config.contdist * 25) {
+				let npc = findClosestNpc();
+				if (npc===undefined||npc.distance===undefined|| npc.distance > config.contdist * 25) {
 					mod.command.message('Warning: no seller npc at acceptable range');
 				}
 				break;
@@ -1163,18 +1151,8 @@ module.exports = function autoFishing(mod) {
 					mod.command.message('Incorrect command');
 				} else {
 					if (config.filetmode == 'selltonpc') {
-						let npc = Object.values(Object.assign({}, npcList))
-							.filter(x => TEMPLATE_SELLER.includes(x.templateId));
-						npc.forEach(function (obj, index, theArray) {
-							obj.distance = obj.loc.dist3D(playerLocation.loc);
-							theArray[index] = obj;
-						});
-						npc.reduce((result, obj) => {
-							result[0] = (result[0] === undefined || obj.distance < result[0].distance) ? obj : result[0];
-							return result;
-						}, []);
-
-						if (npc.length === 0 || npc[0].distance > config.contdist * 25) {
+						let npc =findClosestNpc();
+						if (npc===undefined||npc.distance===undefined|| npc.distance > config.contdist * 25) {
 							mod.command.message('Warning: no seller npc at acceptable range');
 						}
 					}
