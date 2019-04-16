@@ -607,7 +607,7 @@ module.exports = function autoFishing(mod) {
 									action = 'aborted';
 								} else {
 									request = {
-										seller: npc[0],
+										seller: npc,
 										fishes: fishes
 									};
 								}
