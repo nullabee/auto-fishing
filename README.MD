@@ -33,6 +33,7 @@ You can edit the delays in the YourName-ServerID.json file via notepad once you 
 ---
 
 ## Note
+- If you want to use an special bait before another one make sure it's slot is lower than the slot from the other one.
 - To add an item link into the chat just press ctrl and left mouse onto the desired item.
 - This repo will only contain the opcodes for the Ru and Eu version, unless someone send them to me for other regions.
 
