@@ -4,8 +4,7 @@
 
 ## First Time Installation & Updating Opcodes
 - Move the files inside the defs folder into Your-Proxy-Folder/node_modules/tera-data/protocol.
-- Move and merge the protocol files into Your-Proxy-Folder/node_modules/tera-data/map.
-- An mapping overview for your region can be found here [Mapping Overview](https://github.com/caali-hackerman/tera-data/blob/master/mappings.json).
+- Move or merge the protocol files into Your-Proxy-Folder/node_modules/tera-data/map.
 
 ---
 
