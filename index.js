@@ -41,6 +41,7 @@ module.exports = function autoFishing(mod) {
 		70284: 206008, //worm
 		70285: 206009, //worm
 		70362: 206902, //worm 80%+20%
+		70363: 206903, //worm 80%+15%
 		70286: 206828, //Celisium Fragment Bait,
 		70379: 143188, //event
 		5000012 : 143188 //event

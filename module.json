@@ -1,10 +1,46 @@
 {
     "disableAutoUpdate": false,
+    "author": "SoliaRdi",
     "options": {
-        "niceName": "auto-fishing"
+        "niceName": "Auto-Fishing",
+        "guiName": "Auto-Fishing"
     },
     "supportUrl": "https://github.com/SoliaRdi/auto-fishing",
     "servers": ["https://raw.githubusercontent.com/SoliaRdi/auto-fishing/master/"],
     "name": "auto-fishing",
-    "description": "Description goes here."
+    "description": "Fish easier!",
+    "packets": {
+        "C_CANCEL_CONTRACT": 1,
+        "C_DIALOG": 1,
+        "C_END_FISHING_MINIGAME": 1,
+        "C_NPC_CONTACT": 2,
+        "C_PCBANGINVENTORY_USE_SLOT": 1,
+        "C_PLAYER_LOCATION": 5,
+        "C_REQUEST_CONTRACT": 1,
+        "C_RETURN_TO_LOBBY": 1,
+        "C_RQ_ADD_ITEM_TO_DECOMPOSITION_CONTRACT": 1,
+        "C_RQ_COMMIT_DECOMPOSITION_CONTRACT": 1,
+        "C_START_FISHING_MINIGAME": 1,
+        "C_START_PRODUCE": 1,
+        "C_USE_ITEM": 3,
+        "S_ABNORMALITY_BEGIN": 3,
+        "S_ABNORMALITY_END": 1,
+        "S_ABNORMALITY_REFRESH": 1,
+        "S_CANCEL_CONTRACT": 1,
+        "S_DESPAWN_NPC": 3,
+        "S_DIALOG": 2,
+        "S_END_PRODUCE": 1,
+        "S_EXIT": 3,
+        "S_FISHING_BITE": 1,
+        "S_FISHING_CATCH": 1,
+        "S_LOAD_TOPO": 3,
+        "S_PCBANGINVENTORY_DATALIST": 1,
+        "S_REQUEST_CONTRACT": 1,
+        "S_RP_ADD_ITEM_TO_DECOMPOSITION_CONTRACT": 1,
+        "S_SPAWN_NPC": 11,
+        "S_SPAWN_USER": 14,
+        "S_START_COOLTIME_ITEM": 1,
+        "S_START_FISHING_MINIGAME": 1,
+        "S_SYSTEM_MESSAGE": 1
+    }
 }
