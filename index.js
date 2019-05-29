@@ -818,12 +818,11 @@ module.exports = function autoFishing(mod) {
 		});
 	}
 
-	if (mod.majorPatchVersion >= 82) {
-		function useSlot(slot) {
+	
+	function useSlot(slot){
+		if (mod.majorPatchVersion >= 82) {
 			mod.send('C_USE_PREMIUM_SLOT', 1, slot);
-		}
-	} else {
-		function useSlot(slot) {
+		}else{
 			mod.send('C_PCBANGINVENTORY_USE_SLOT', 1, slot);
 		}
 	}
