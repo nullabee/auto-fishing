@@ -44,7 +44,8 @@ module.exports = function autoFishing(mod) {
 		70285: 206009, // Golden Angleworm 80%
 		70286: 206828, // Celisium Fragment Bait
 		70379: 143188, // Event Bait I
-		5000012: 143188, // Event Bait II
+		5000012: 143188, // Event Bait II,
+		5060038: 856470, // ICEFISH BAIT
 	};
 	const ITEMS_BANKER = [60264, 160326, 170003, 210111, 216754];
 	const ITEMS_SELLER = [160324, 170004, 210109, 60262, 60263, 160325, 170006, 210110];
