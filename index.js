@@ -85,15 +85,7 @@ module.exports = function autoFishing(mod) {
 	let config, settingsPath;
 	if (mod.proxyAuthor !== 'caali' || !global.TeraProxy)
 		mod.warn('You are trying to use auto-fishing on an unsupported version of tera-proxy.');
-	try {
-		let commit = mod.dispatch.protocol.messages.get('C_STORE_COMMIT');
-		if (commit.get(1)[1][0] == 'npc') {
-			mod.dispatch.protocol.messages.set('C_STORE_COMMIT', new Map().set(1, [
-				['gameId', 'uint64'],
-				['contract', 'int32']
-			]));
-		}
-	} catch (e) {}
+
 	mod.game.initialize(['inventory']);
 	mod.game.on('enter_game', () => {
 		try {
