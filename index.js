@@ -553,7 +553,7 @@ module.exports = function autoFishing(mod) {
 				}))
 				action = "usebait";
 		}
-		if (mod.game.inventory.bagSize - mod.game.inventory.bag.length <= 3) {
+		if (mod.game.inventory.bag.size - mod.game.inventory.bagItems.length <= 3) {
 			if (filets === undefined || filets.amount < 60)
 				action = "dismantle";
 			else
