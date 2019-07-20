@@ -781,7 +781,7 @@ module.exports = function autoFishing(mod) {
 			gameId: mod.game.me.gameId,
 			type: 1,
 			page: 0,
-			invenPos: request.filets.slot,
+			invenPos: request.filets.slot+40,
 			dbid: request.filets.id,
 			uid: request.filets.dbid,
 			amont: amount
@@ -834,7 +834,7 @@ module.exports = function autoFishing(mod) {
 				npc: request.seller.contractId,
 				item: fish.id,
 				quantity: 1,
-				slot: fish.slot
+				slot: fish.slot+40
 			});
 		} else {
 			mod.clearTimeout(endSellingTimer);
