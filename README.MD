@@ -41,6 +41,7 @@ You can edit the delays in the YourName-ServerID.json file via notepad once you 
 
 - If you need to log them yourself use this module for logging specific packets [Packet ID Finder](https://github.com/Owyn/alex-packet-id-finder).
 - If you need to log them yourself use this module for logging all client or server packets [Packets Logger](https://github.com/SoliaRdi/PacketsLogger).
+- Maybe you will find opcodes here https://github.com/tera-proxy/tera-data/tree/master/map.
 
 ---
 
