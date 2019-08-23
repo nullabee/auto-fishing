@@ -448,32 +448,21 @@ module.exports = function autoFishing(mod) {
 				}
 			}
 	});
-	if (mod.majorPatchVersion >= 82) {
-		mod.hook('S_PREMIUM_SLOT_DATALIST', 2, event => {
-			for (let set of event.sets) {
-				for (let inven of set.inventory) {
-					if (ITEMS_BANKER.includes(inven.item)) {
-						pcbangBanker = {
-							set: set.id,
-							slot: inven.slot,
-							type: inven.type,
-							id: inven.id
-						};
-					}
-				}
-			}
-		});
-	} else {
-		mod.hook('S_PCBANGINVENTORY_DATALIST', 1, event => {
-			for (let inven of event.inventory) {
+
+	mod.hook('S_PREMIUM_SLOT_DATALIST', 2, event => {
+		for (let set of event.sets) {
+			for (let inven of set.inventory) {
 				if (ITEMS_BANKER.includes(inven.item)) {
 					pcbangBanker = {
-						slot: inven.slot
+						set: set.id,
+						slot: inven.slot,
+						type: inven.type,
+						id: inven.id
 					};
 				}
 			}
-		});
-	}
+		}
+	});
 	mod.hook('S_START_COOLTIME_ITEM', 1, event => {
 		if ((ITEMS_BANKER.includes(event.item) || ITEMS_SELLER.includes(event.item)) && event.cooldown > 0 && !scrollsInCooldown) {
 			scrollsInCooldown = true;
@@ -533,10 +522,10 @@ module.exports = function autoFishing(mod) {
 		}, 300 * 1000);
 		let action = "userod";
 		request = {};
-		let filets = mod.game.inventory.findInBag(204052);
-		let fishes = mod.game.inventory.findAllInBag(flatSingle(ITEMS_FISHES)).filter(f => !config.blacklist.includes(f.id));
-		let bait = mod.game.inventory.findInBag(Object.values(BAITS));
-		let salad = mod.game.inventory.findInBag([206020, 206040]);
+		let filets = mod.game.inventory.findInBagOrPockets(204052);
+		let fishes = mod.game.inventory.findAllInBagOrPockets(flatSingle(ITEMS_FISHES)).filter(f => !config.blacklist.includes(f.id));
+		let bait = mod.game.inventory.findInBagOrPockets(Object.values(BAITS));
+		let salad = mod.game.inventory.findInBagOrPockets([206020, 206040]);
 		if (config.autosalad) {
 			if (abnormalityDuration(70261) <= 0 && salad !== undefined)
 				action = "usesalad";
@@ -579,7 +568,7 @@ module.exports = function autoFishing(mod) {
 							}, 60 * 1000);
 							action = 'wait';
 						} else {
-							let scroll = mod.game.inventory.findInBag(ITEMS_SELLER);
+							let scroll = mod.game.inventory.findInBagOrPockets(ITEMS_SELLER);
 							if (scroll === undefined) {
 								mod.command.message(`ERROR: Cant find any seller scroll`);
 								console.log(`auto-fishing(${mod.game.me.name})|ERROR: Cant find any seller scroll`);
@@ -635,7 +624,7 @@ module.exports = function autoFishing(mod) {
 							action = 'wait';
 						} else {
 							if (pcbangBanker == null) {
-								let scroll = mod.game.inventory.findInBag(ITEMS_BANKER);
+								let scroll = mod.game.inventory.findInBagOrPockets(ITEMS_BANKER);
 								if (scroll === undefined) {
 									mod.command.message(`ERROR: Cant find any banker scroll`);
 									console.log(`auto-fishing(${mod.game.me.name})|ERROR: Cant find any banker scroll`);
@@ -664,7 +653,7 @@ module.exports = function autoFishing(mod) {
 				break;
 			}
 			case "userod": {
-				let rod = mod.game.inventory.findInBag(flatSingle(ITEMS_RODS));
+				let rod = mod.game.inventory.findInBagOrPockets(flatSingle(ITEMS_RODS));
 				request = {
 					rod: rod
 				};
@@ -777,15 +766,29 @@ module.exports = function autoFishing(mod) {
 	//region Send
 	function bankFillets() {
 		let amount = (config.bankAmount > request.filets.amount ? request.filets.amount : config.bankAmount) - 150;
-		mod.send('C_PUT_WARE_ITEM', 2, {
-			gameId: mod.game.me.gameId,
-			type: 1,
-			page: 0,
-			invenPos: request.filets.slot+40,
-			dbid: request.filets.id,
-			uid: request.filets.dbid,
-			amont: amount
-		});
+		if (mod.majorPatchVersion >= 85) {
+			mod.send('C_PUT_WARE_ITEM', 3, {
+				gameId: mod.game.me.gameId,
+				type: 1,
+				page: 0,
+				pocket: request.filets.pocket,
+				invenPos: request.filets.slot,
+				id: request.filets.id,
+				dbid: request.filets.dbid,
+				amont: amount
+			});
+		} else {
+			mod.send('C_PUT_WARE_ITEM', 2, {
+				gameId: mod.game.me.gameId,
+				type: 1,
+				page: 0,
+				invenPos: request.filets.slot + 40,
+				dbid: request.filets.id,
+				uid: request.filets.dbid,
+				amont: amount
+			});
+		}
+
 		mod.setTimeout(() => {
 			cancelContract(26, request.banker.contractId);
 		}, 5000);
@@ -811,13 +814,9 @@ module.exports = function autoFishing(mod) {
 		});
 	}
 
-	
-	function useSlot(slot){
-		if (mod.majorPatchVersion >= 82) {
-			mod.send('C_USE_PREMIUM_SLOT', 1, slot);
-		}else{
-			mod.send('C_PCBANGINVENTORY_USE_SLOT', 1, slot);
-		}
+
+	function useSlot(slot) {
+		mod.send('C_USE_PREMIUM_SLOT', 1, slot);
 	}
 
 	function contactToNpc(gameId) {
@@ -829,13 +828,24 @@ module.exports = function autoFishing(mod) {
 	function sellFish() {
 		let fish = request.fishes.shift();
 		if (fish != undefined) {
-			mod.send('C_STORE_SELL_ADD_BASKET', 1, {
-				cid: mod.game.me.gameId,
-				npc: request.seller.contractId,
-				item: fish.id,
-				quantity: 1,
-				slot: fish.slot+40
-			});
+			if (mod.majorPatchVersion >= 85) {
+				mod.send('C_STORE_SELL_ADD_BASKET', 2, {
+					cid: mod.game.me.gameId,
+					npc: request.seller.contractId,
+					item: fish.id,
+					quantity: 1,
+					pocket: fish.pocket,
+					slot: fish.slot
+				});
+			} else {
+				mod.send('C_STORE_SELL_ADD_BASKET', 1, {
+					cid: mod.game.me.gameId,
+					npc: request.seller.contractId,
+					item: fish.id,
+					quantity: 1,
+					slot: fish.slot + 40
+				});
+			}
 		} else {
 			mod.clearTimeout(endSellingTimer);
 			endSellingTimer = mod.setTimeout(() => {
