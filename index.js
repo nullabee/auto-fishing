@@ -76,7 +76,7 @@ module.exports = function autoFishing(mod) {
 			'C_STORE_COMMIT': false,
 		}
 	};
-
+	let dismantle_contract_type = (mod.majorPatchVersion >= 85 ? 90 : 89);
 	let statistic = [],
 		startTime = null,
 		endTime = null,
@@ -289,7 +289,7 @@ module.exports = function autoFishing(mod) {
 				}
 			}
 			case "dismantle": {
-				if (event.type == 89) {
+				if (event.type == dismantle_contract_type) {
 					request.contractId = event.id;
 					dismantleFish();
 				}
@@ -316,7 +316,7 @@ module.exports = function autoFishing(mod) {
 				}
 			}
 			case "dismantle": {
-				if (event.type == 89 && request.contractId == event.id) {
+				if (event.type == dismantle_contract_type && request.contractId == event.id) {
 					mod.setTimeout(() => {
 						makeDecision();
 					}, rng(config.time.contract));
@@ -706,7 +706,7 @@ module.exports = function autoFishing(mod) {
 		switch (request.action) {
 			case "dismantle": {
 				mod.setTimeout(() => {
-					requestContract(89);
+					requestContract(dismantle_contract_type);
 				}, rng(config.time.contract));
 				break;
 			}
@@ -870,7 +870,7 @@ module.exports = function autoFishing(mod) {
 			contract: request.contractId
 		});
 		mod.setTimeout(() => { //reduce opcodes
-			cancelContract(89, request.contractId);
+			cancelContract(dismantle_contract_type, request.contractId);
 		}, 10000);
 	}
 
