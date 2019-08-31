@@ -775,7 +775,7 @@ module.exports = function autoFishing(mod) {
 				invenPos: request.filets.slot,
 				id: request.filets.id,
 				dbid: request.filets.dbid,
-				amont: amount
+				amount: amount
 			});
 		} else {
 			mod.send('C_PUT_WARE_ITEM', 2, {
