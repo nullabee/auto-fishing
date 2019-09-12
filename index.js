@@ -417,7 +417,7 @@ module.exports = function autoFishing(mod) {
 	mod.hook('S_DESPAWN_NPC', 3, event => {
 		delete npcList[event.gameId];
 	});
-	mod.hook('S_SPAWN_USER', 14, event => {
+	mod.hook('S_SPAWN_USER', 15, event => {
 		if (event.gm && enabled)
 			switch (config.gmmode) {
 				case 'exit': {
@@ -522,10 +522,10 @@ module.exports = function autoFishing(mod) {
 		}, 300 * 1000);
 		let action = "userod";
 		request = {};
-		let filets = mod.game.inventory.findInBagOrPockets(204052);
+		let filets = mod.game.inventory.findInBagOrPockets(FILET_ID);
 		let fishes = mod.game.inventory.findAllInBagOrPockets(flatSingle(ITEMS_FISHES)).filter(f => !config.blacklist.includes(f.id));
 		let bait = mod.game.inventory.findInBagOrPockets(Object.values(BAITS));
-		let salad = mod.game.inventory.findInBagOrPockets([206020, 206040]);
+		let salad = mod.game.inventory.findInBagOrPockets(ITEMS_SALAD);
 		if (config.autosalad) {
 			if (abnormalityDuration(70261) <= 0 && salad !== undefined)
 				action = "usesalad";
@@ -554,7 +554,6 @@ module.exports = function autoFishing(mod) {
 			config.filetmode != 'selltonpc') {
 			action = "toomanyfilets"
 		}
-
 		//check
 		switch (action) {
 			case "fullinven": {

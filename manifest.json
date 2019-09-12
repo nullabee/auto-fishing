@@ -1,7 +1,7 @@
 {
     "files": {
-        "index.js": "2abff0ba6f248bc674b5939bbc9dd0510244450828d0d90732efb5d3612160cf",
-        "module.json": "4711bfedcbd5ec6923c1822b7e30f653ee842bce0b9b2ea8e7333cf8f24e4db8"
+        "index.js": "1f08d1a2db5db6898da6538a7769cf74177dd91ce072c735d55c871a033dc5ab",
+        "module.json": "4711bfedcbd5ec6923c1822b7e30f653ee842bce0b9b2ea8e7333cf8f24e4db8",
     },
     "defs": {
         "C_CANCEL_CONTRACT": 1,
@@ -32,7 +32,7 @@
         "S_REQUEST_CONTRACT": 1,
         "S_RP_ADD_ITEM_TO_DECOMPOSITION_CONTRACT": 1,
         "S_SPAWN_NPC": 11,
-        "S_SPAWN_USER": 14,
+        "S_SPAWN_USER": 15,
         "S_START_COOLTIME_ITEM": 1,
         "S_START_FISHING_MINIGAME": 1,
         "S_SYSTEM_MESSAGE": 1
