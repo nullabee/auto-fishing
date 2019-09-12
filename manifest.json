@@ -1,7 +1,7 @@
 {
     "files": {
         "index.js": "1f08d1a2db5db6898da6538a7769cf74177dd91ce072c735d55c871a033dc5ab",
-        "module.json": "4711bfedcbd5ec6923c1822b7e30f653ee842bce0b9b2ea8e7333cf8f24e4db8",
+        "module.json": "4711bfedcbd5ec6923c1822b7e30f653ee842bce0b9b2ea8e7333cf8f24e4db8"
     },
     "defs": {
         "C_CANCEL_CONTRACT": 1,
