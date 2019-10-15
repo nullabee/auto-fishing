@@ -136,7 +136,7 @@ module.exports = function autoFishing(mod) {
 			}
 			hook('S_RP_ADD_ITEM_TO_DECOMPOSITION_CONTRACT', 1, sRpAddItem);
 			hook('S_SPAWN_NPC', 11, sSpawnNpc);
-			hook('S_ABNORMALITY_BEGIN', 3, sAbnBegin);
+			hook('S_ABNORMALITY_BEGIN', mod.majorPatchVersion >= 86?4:3, sAbnBegin);
 		} else {
 			for (var i = 0; i < hooks.length; i++) {
 				mod.unhook(hooks[i]);
@@ -492,14 +492,14 @@ module.exports = function autoFishing(mod) {
 
 	//region Abnormality tracking
 	let abnormalities = {};
-	mod.hook('S_ABNORMALITY_BEGIN', 3, event => {
+	mod.hook('S_ABNORMALITY_BEGIN', mod.majorPatchVersion >= 86?4:3, event => {
 		if (mod.game.me.is(event.target))
-			abnormalities[event.id] = Date.now() + event.duration;
+			abnormalities[event.id] = Date.now() + Number.parseInt(event.duration);;
 	});
 
-	mod.hook('S_ABNORMALITY_REFRESH', 1, event => {
+	mod.hook('S_ABNORMALITY_REFRESH', mod.majorPatchVersion >= 86?2:1, event => {
 		if (mod.game.me.is(event.target))
-			abnormalities[event.id] = Date.now() + event.duration;
+			abnormalities[event.id] = Date.now() + Number.parseInt(event.duration);;
 	});
 
 	mod.hook('S_ABNORMALITY_END', 1, event => {

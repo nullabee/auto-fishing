@@ -1,6 +1,6 @@
 {
     "files": {
-        "index.js": "1f08d1a2db5db6898da6538a7769cf74177dd91ce072c735d55c871a033dc5ab",
+        "index.js": "1424572eada9cfc76cbed687193d46c487c1213f6570ffce8f0d079217e91260",
         "module.json": "4711bfedcbd5ec6923c1822b7e30f653ee842bce0b9b2ea8e7333cf8f24e4db8"
     },
     "defs": {
@@ -17,9 +17,9 @@
         "C_START_PRODUCE": 1,
         "C_USE_ITEM": 3,
         "C_USE_PREMIUM_SLOT": 1,
-        "S_ABNORMALITY_BEGIN": 3,
+        "S_ABNORMALITY_BEGIN": [3,4],
         "S_ABNORMALITY_END": 1,
-        "S_ABNORMALITY_REFRESH": 1,
+        "S_ABNORMALITY_REFRESH": [1,2],
         "S_CANCEL_CONTRACT": 1,
         "S_DESPAWN_NPC": 3,
         "S_DIALOG": 2,
