@@ -46,6 +46,7 @@ module.exports = function autoFishing(mod) {
 		70379: 143188, // Event Bait I
 		5000012: 143188, // Event Bait II,
 		5060038: 856470, // ICEFISH BAIT
+		70276: 206053// Pilidium Bait, remove from inv and bag all others baits
 	};
 	const ITEMS_BANKER = [60264, 160326, 170003, 210111, 216754];
 	const ITEMS_SELLER = [160324, 170004, 210109, 60262, 60263, 160325, 170006, 210110];
