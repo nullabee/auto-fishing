@@ -116,6 +116,10 @@ module.exports = function autoFishing(mod) {
 	}
 
 	function toggleHooks() {
+		if(mod.majorPatchVersion >= 88){
+			mod.command.message('Mod temporarily disabled for patch 88 due to defs change.');
+			return;
+		}
 		enabled = !enabled;
 		mod.clearAllTimeouts();
 		if (enabled) {
