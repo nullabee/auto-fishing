@@ -15,7 +15,7 @@ module.exports = function autoFishing(mod) {
 		[206422, 206423, 206424, 206425, 206449, 206450], // Tier 8
 		[206426, 206427, 206428, 206429, 206430, 206452, 206451, 206453], // Tier 9
 		[206431, 206432, 206433, 206434, 206435, 206454, 206455, 206456], // Tier 10
-		[206500, 206501, 206502, 206503, 206504, 206505, 206506, 206507, 206508, 206509, 206510, 206511, 206512, 206513, 206513], // BAF
+		[206500, 206501, 206502, 206503, 206504, 206505, 206506, 206507, 206508, 206509, 206510, 206511, 206512, 206513, 206514], // BAF
 	];
 	const ITEMS_RODS = [
 		[...range(206721, 206728)], //Fairywing Rods
@@ -116,14 +116,13 @@ module.exports = function autoFishing(mod) {
 	}
 
 	function toggleHooks() {
-		if(mod.majorPatchVersion >= 88){
-			mod.command.message('Mod temporarily disabled for patch 88 due to defs change.');
-			return;
-		}
 		enabled = !enabled;
 		mod.clearAllTimeouts();
 		if (enabled) {
 			mod.command.message('Auto fishing activated. Manually start fishing now.');
+			if(mod.majorPatchVersion >= 88){
+				mod.command.message('Idk if current solution is safe.');
+			}
 		} else {
 			mod.command.message('Auto fishing deactivated.');
 		}
@@ -142,6 +141,10 @@ module.exports = function autoFishing(mod) {
 			hook('S_RP_ADD_ITEM_TO_DECOMPOSITION_CONTRACT', 1, sRpAddItem);
 			hook('S_SPAWN_NPC', 11, sSpawnNpc);
 			hook('S_ABNORMALITY_BEGIN', mod.majorPatchVersion >= 86?4:3, sAbnBegin);
+			if(mod.majorPatchVersion >= 88){
+				hook('C_CAST_FISHING_ROD', 2, cCastFishingRod);
+				hook('C_STOP_FISHING', 2, cStopFishing);
+			}
 		} else {
 			for (var i = 0; i < hooks.length; i++) {
 				mod.unhook(hooks[i]);
@@ -155,6 +158,18 @@ module.exports = function autoFishing(mod) {
 	};
 
 	//region Hooks
+
+	function cCastFishingRod(event){
+		event.counter=1;
+		event.unk1=237;
+		return true;
+	}
+	function cStopFishing(event){
+		event.counter=1;
+		event.unk=1;
+		return true;
+	}
+
 	function sAbnBegin(event) {
 		if (mod.game.me.is(event.target)) {
 			switch (request.action) {
@@ -216,7 +231,10 @@ module.exports = function autoFishing(mod) {
 	function sFishingBite(event) {
 		if (mod.game.me.is(event.gameId)) {
 			mod.setTimeout(() => {
-				mod.send('C_START_FISHING_MINIGAME', 1, {});
+				mod.send('C_START_FISHING_MINIGAME', mod.majorPatchVersion>=88?2:1, {
+					counter:1,
+					unk:15
+				});
 			}, rng(config.time.stMinigame));
 		}
 	}
@@ -226,7 +244,9 @@ module.exports = function autoFishing(mod) {
 			lastLevel = event.level;
 			if (config.skipbaf && (event.level == 11 || (abnormalityDuration(70261) > 0 && event.level == 7))) {
 				mod.setTimeout(() => {
-					mod.send('C_END_FISHING_MINIGAME', 1, {
+					mod.send('C_END_FISHING_MINIGAME', mod.majorPatchVersion>=88?2:1, {
+						counter:1,
+						unk:24,
 						success: false
 					});
 					mod.setTimeout(() => {
@@ -236,7 +256,9 @@ module.exports = function autoFishing(mod) {
 
 			} else {
 				mod.setTimeout(() => {
-					mod.send('C_END_FISHING_MINIGAME', 1, {
+					mod.send('C_END_FISHING_MINIGAME', mod.majorPatchVersion>=88?2:1, {
+						counter:1,
+						unk:24,
 						success: true
 					});
 				}, rng(config.time.minigame));

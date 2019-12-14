@@ -1,20 +1,22 @@
 {
     "files": {
-        "index.js": "beca228f20af4ba9050075b22ad84b81f1e871d7165cd3aeb04cd4124cde1722",
+        "index.js": "0fbac0cf816f753c89bbe15b2b9961d95ee67b7de53bf43857a7c97f973c3b44",
         "module.json": "4711bfedcbd5ec6923c1822b7e30f653ee842bce0b9b2ea8e7333cf8f24e4db8"
     },
     "defs": {
         "C_CANCEL_CONTRACT": 1,
+        "C_CAST_FISHING_ROD": 2,
         "C_DIALOG": 1,
-        "C_END_FISHING_MINIGAME": 1,
+        "C_END_FISHING_MINIGAME": [1,2],
         "C_NPC_CONTACT": 2,
         "C_PLAYER_LOCATION": 5,
         "C_REQUEST_CONTRACT": 1,
         "C_RETURN_TO_LOBBY": 1,
         "C_RQ_ADD_ITEM_TO_DECOMPOSITION_CONTRACT": 1,
         "C_RQ_COMMIT_DECOMPOSITION_CONTRACT": 1,
-        "C_START_FISHING_MINIGAME": 1,
+        "C_START_FISHING_MINIGAME": [1,2],
         "C_START_PRODUCE": 1,
+        "C_STOP_FISHING": 2,
         "C_USE_ITEM": 3,
         "C_USE_PREMIUM_SLOT": 1,
         "S_ABNORMALITY_BEGIN": [3,4],
