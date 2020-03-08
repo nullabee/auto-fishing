@@ -4,8 +4,8 @@
 
 ## First Time Installation & Updating Opcodes
 - Opcodes only here https://github.com/tera-proxy/tera-data/tree/master/map.
-- Move the files inside the defs folder into Your-Proxy-Folder/data/opcodes.
-- Move or merge the protocol file (from link above for your region) into Your-Proxy-Folder/data/definitions.
+- Move the files inside the defs folder into Your-Proxy-Folder/data/definitions.
+- Move or merge the protocol file (from link above for your region) into Your-Proxy-Folder/data/opcodes.
 
 ---
 
