@@ -1,7 +1,10 @@
 {
     "files": {
         "index.js": "4453801f6360c45b77054027687a4577377e2b2b02c86a537594c3f435808967",
-        "module.json": "4711bfedcbd5ec6923c1822b7e30f653ee842bce0b9b2ea8e7333cf8f24e4db8"
+        "module.json": "4711bfedcbd5ec6923c1822b7e30f653ee842bce0b9b2ea8e7333cf8f24e4db8",
+        "node_modules/moment/LICENSE": "8f38f320bbf5eb84c08e08676f7ee1d2204ebe5797f6a090d077329cf212fca3",
+        "node_modules/moment/README.md": "0ea28c66cadbe27b34a8a33629c03e73b07a7874b344842ca5daf850011a4791",
+        "node_modules/moment/moment.js": "abb1e3869d7c4b972c050c0fb07165fb3ab9ca2e2613d4644d92c29e54c24122"
     },
     "defs": {
         "C_CANCEL_CONTRACT": 1,
