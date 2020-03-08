@@ -48,7 +48,7 @@ You can edit the delays in the YourName-ServerID.json file via notepad once you 
 ## Important Changes With The Latest Big Update
 <details>
 <summary>Changelog</summary>
-- From now on this module will only work on Caali's Tera Proxy. Please don't ask for help in his discord tho.
+- From now on this module will only work on Toolbox. Please don't ask for help in his discord tho.
 <br>
 - If you want to farm filet you need to use /8 fish filetmode bank since there is no drop option anymore.
 <br>
