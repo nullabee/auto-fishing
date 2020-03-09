@@ -1,0 +1,51 @@
+{
+	"time": {
+		"minigame": {
+			"min": 4000,
+			"max": 5000
+		},
+		"stMinigame": {
+			"min": 2000,
+			"max": 4000
+		},
+		"rod": {
+			"min": 4500,
+			"max": 5500
+		},
+		"bait": {
+			"min": 250,
+			"max": 750
+		},
+		"sell": {
+			"min": 150,
+			"max": 300
+		},
+		"contract": {
+			"min": 500,
+			"max": 1000
+		},
+		"dialog": {
+			"min": 1500,
+			"max": 3000
+		},
+		"dismantle": {
+			"min": 200,
+			"max": 400
+		},
+		"decision": {
+			"min": 500,
+			"max": 700
+		}
+	},
+	"blacklist": [
+		206501,
+		206503,
+		206505,
+		206507,
+		206509,
+		206427,
+		206430,
+		206454
+	],
+	"gmmode": "stop"
+}

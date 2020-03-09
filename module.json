@@ -1,5 +1,5 @@
 {
-    "disableAutoUpdate": false,
+    "disableAutoUpdate": true,
     "author": "SoliaRdi",
     "options": {
         "niceName": "Auto-Fishing",
